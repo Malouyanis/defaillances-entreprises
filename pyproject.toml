@@ -1,0 +1,22 @@
+[project]
+name = "defaillances-entreprises"
+version = "0.1.0"
+description = "Dashboard Dash sur les défaillances d'entreprises en France (BODACC, ratios BCE/INPI, Sirene)"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [
+    { name = "Yanis Malou", email = "yanis.malou@edu.esiee.fr" },
+    { name = "Maxime Pierrard", email = "maxime.pierrard@edu.esiee.fr" },
+]
+dependencies = [
+    "dash>=4.4.1",
+    "dash-bootstrap-components>=2.0.4",
+    "pandas>=3.1.0",
+    "plotly>=7.1.0",
+    "pyarrow>=26.0.0",
+    "requests>=2.34.2",
+]
+
+[tool.uv]
+# uv sync n'installe que les dépendances du dashboard ; les outils de dev s'installent avec --all-groups
+default-groups = []
