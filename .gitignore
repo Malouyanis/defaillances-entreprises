@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Projet : données brutes trop lourdes pour GitHub (recréées par get_data.py)
+data/raw/
+
+# Secrets et macOS
+.env
+.DS_Store
