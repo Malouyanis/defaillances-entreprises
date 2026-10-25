@@ -26,3 +26,7 @@ RATIOS_URL_EXPORT = (
 SIRENE_URL_STOCK_UNITE_LEGALE = (
     "https://www.data.gouv.fr/api/1/datasets/r/350182c9-148a-46e0-8389-76c2ec1374a3"
 )
+TITRE_APPLICATION = "Défaillances d'entreprises en France"
+DOSSIER_PAGES = RACINE / "src" / "pages"
+HOTE = "127.0.0.1"
+PORT = 8050
