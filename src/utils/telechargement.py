@@ -47,4 +47,3 @@ def decrire_parquet(chemin: Path) -> DescriptionFichier:
         colonnes=list(fichier.schema_arrow.names),
         taille_mo=round(chemin.stat().st_size / 1e6, 1),
     )
-    
