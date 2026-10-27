@@ -12,4 +12,3 @@ def test_creer_application() -> None:
     assert application.title == config.TITRE_APPLICATION
     chemins = [page["path"] for page in dash.page_registry.values()]
     assert "/" in chemins
-    
