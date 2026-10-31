@@ -28,7 +28,15 @@ COLONNES_LUES = (
     "type_bilan",
     "confidentiality",
 )
-COLONNES_NETTOYEES = ("siren", "date_cloture_exercice", *MONTANTS, *RATIOS, "type_bilan")
+RATIOS_COMPTE_RESULTAT = ("marge_ebe", "capacite_de_remboursement")
+COLONNES_NETTOYEES = (
+    "siren",
+    "date_cloture_exercice",
+    *MONTANTS,
+    *RATIOS,
+    "type_bilan",
+    "compte_resultat_publie",
+)
 QUANTILE_BAS = 0.01
 QUANTILE_HAUT = 0.99
 
@@ -55,11 +63,30 @@ def normaliser_siren(siren: pd.Series) -> pd.Series:
     return chiffres.where(chiffres.str.len() == 9)
 
 
-def retirer_confidentiels(comptes: pd.DataFrame) -> pd.DataFrame:
-    """Retire les comptes déposés en mode confidentiel, dont les montants ne sont pas publics."""
+def est_confidentiel(comptes: pd.DataFrame) -> pd.Series:
+    """Indique les dépôts « partiellement confidentiels » (compte de résultat non publié)."""
     confidentialite = comptes["confidentiality"].astype("string").str.lower()
-    est_confidentiel = confidentialite.str.contains("confidentiel", na=False)
-    return comptes.loc[~est_confidentiel]
+    return confidentialite.str.contains("confidentiel", na=False)
+
+
+def masquer_compte_resultat(comptes: pd.DataFrame) -> pd.DataFrame:
+    """Garde les dépôts confidentiels, mais vide ce qui vient du compte de résultat caché.
+
+    Leur bilan est public (endettement, liquidité, autonomie financière) ; leur chiffre
+    d'affaires, leur résultat et leur EBE ne le sont pas et sont remplacés par une case vide.
+    """
+    confidentiel = est_confidentiel(comptes)
+    masques = comptes.copy()
+    for colonne in MONTANTS + RATIOS_COMPTE_RESULTAT:
+        masques[colonne] = masques[colonne].mask(confidentiel)
+    masques["compte_resultat_publie"] = ~confidentiel
+    return masques
+
+
+def part_ca_nul_confidentiels(comptes: pd.DataFrame) -> float:
+    """Part des dépôts confidentiels dont le chiffre d'affaires est égal à 0 dans le fichier."""
+    confidentiels = comptes.loc[est_confidentiel(comptes), "chiffre_d_affaires"]
+    return float((confidentiels == 0).mean()) if len(confidentiels) else 0.0
 
 
 def une_ligne_par_exercice(comptes: pd.DataFrame) -> pd.DataFrame:
@@ -85,10 +112,10 @@ def plafonner_ratios(comptes: pd.DataFrame) -> pd.DataFrame:
 
 def nettoyer_comptes(comptes: pd.DataFrame) -> pd.DataFrame:
     """Enchaîne les étapes de nettoyage et renvoie une ligne par société et par exercice."""
-    publics = retirer_confidentiels(comptes)
-    prepares = publics.assign(
-        siren=normaliser_siren(publics["siren"]),
-        date_cloture_exercice=pd.to_datetime(publics["date_cloture_exercice"], errors="coerce"),
+    masques = masquer_compte_resultat(comptes)
+    prepares = masques.assign(
+        siren=normaliser_siren(masques["siren"]),
+        date_cloture_exercice=pd.to_datetime(masques["date_cloture_exercice"], errors="coerce"),
     ).dropna(subset=["siren", "date_cloture_exercice"])
     resultat = plafonner_ratios(une_ligne_par_exercice(prepares))
     return resultat.loc[:, list(COLONNES_NETTOYEES)]
@@ -104,6 +131,7 @@ if __name__ == "__main__":
     print(f"Bilans C et S lus : {len(comptes_bruts)}")
     print(comptes_bruts["type_bilan"].value_counts().to_string())
     print(comptes_bruts["confidentiality"].value_counts(dropna=False).to_string())
+    print(f"CA égal à 0 chez les confidentiels : {part_ca_nul_confidentiels(comptes_bruts):.1%}")
     comptes_propres = nettoyer_comptes(comptes_bruts)
     print(f"Après nettoyage : {len(comptes_propres)} exercices")
     print(f"Sociétés distinctes : {comptes_propres['siren'].nunique()}")

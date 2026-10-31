@@ -43,13 +43,24 @@ def test_plafonner_ratios() -> None:
 
 
 def test_nettoyer_comptes() -> None:
-    """Confidentiels et doublons sont retirés ; le bilan complet est préféré."""
+    """Les doublons sont retirés et le bilan complet est préféré ; le confidentiel reste."""
     resultat = nettoyage_comptes.nettoyer_comptes(comptes_exemple())
     assert list(resultat.columns) == list(nettoyage_comptes.COLONNES_NETTOYEES)
-    assert list(resultat["siren"]) == ["012345678", "523456789"]
+    assert list(resultat["siren"]) == ["012345678", "434567890", "523456789"]
     assert resultat.loc[0, "type_bilan"] == "C"
     assert resultat.loc[0, "chiffre_d_affaires"] == 240_000.0
     assert len(nettoyage_comptes.garder_ca_positif(resultat)) == 1
+
+
+def test_masquer_compte_resultat() -> None:
+    """Un dépôt confidentiel garde ses ratios de bilan mais perd son CA, son résultat, son EBE."""
+    resultat = nettoyage_comptes.masquer_compte_resultat(comptes_exemple())
+    confidentiel = resultat.iloc[3]
+    assert pd.isna(confidentiel["chiffre_d_affaires"])
+    assert pd.isna(confidentiel["marge_ebe"])
+    assert confidentiel["taux_d_endettement"] == 3.0
+    assert list(resultat["compte_resultat_publie"]) == [True, True, True, False]
+    assert nettoyage_comptes.part_ca_nul_confidentiels(comptes_exemple()) == 0.0
 
 
 def test_lire_comptes(tmp_path: Path) -> None:
