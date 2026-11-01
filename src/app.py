@@ -6,6 +6,7 @@ from dash import Dash, html
 
 import config
 from src.components.footer import creer_footer
+from src.components.mise_a_jour import creer_bouton_mise_a_jour
 from src.components.navbar import creer_navbar
 
 THEME = dbc.themes.FLATLY
@@ -30,7 +31,9 @@ def creer_application() -> Dash:
     application.layout = html.Div(
         [
             creer_navbar(),
-            dbc.Container([dash.page_container, creer_footer()], fluid=True),
+            dbc.Container(
+                [creer_bouton_mise_a_jour(), dash.page_container, creer_footer()], fluid=True
+            ),
         ]
     )
     return application
