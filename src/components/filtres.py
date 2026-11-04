@@ -4,7 +4,6 @@ Chaque filtre a un identifiant constant : les callbacks des pages s'y brancheron
 en important ces constantes, sans recopier les identifiants à la main.
 """
 
-import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 import config
@@ -13,6 +12,15 @@ from src.utils.figures import COULEURS_PROCEDURES
 ID_FILTRE_ANNEES = "filtre-annees"
 ID_FILTRE_PROCEDURES = "filtre-procedures"
 ID_FILTRE_REGIONS = "filtre-regions"
+LIBELLES_LISTES = {
+    "select_all": "Tout sélectionner",
+    "deselect_all": "Tout désélectionner",
+    "selected_count": "{num_selected} choisies",
+    "search": "Rechercher",
+    "clear_search": "Effacer la recherche",
+    "clear_selection": "Effacer la sélection",
+    "no_options_found": "Aucun résultat",
+}
 REGIONS_METROPOLE = (
     "Auvergne-Rhône-Alpes",
     "Bourgogne-Franche-Comté",
@@ -52,6 +60,7 @@ def creer_filtre_procedures() -> dcc.Dropdown:
         value=procedures,
         multi=True,
         clearable=False,
+        labels=LIBELLES_LISTES,
     )
 
 
@@ -63,18 +72,21 @@ def creer_filtre_regions() -> dcc.Dropdown:
         value=[],
         multi=True,
         placeholder="Toute la France métropolitaine",
+        labels=LIBELLES_LISTES,
     )
 
 
-def creer_barre_filtres() -> dbc.Card:
+def creer_barre_filtres() -> html.Div:
     """Assemble les trois filtres sur une ligne, au-dessus des graphiques."""
     filtres = [
-        ("Période", creer_filtre_annees(), 5),
-        ("Procédure", creer_filtre_procedures(), 4),
-        ("Région", creer_filtre_regions(), 3),
+        ("Période", ID_FILTRE_ANNEES, creer_filtre_annees()),
+        ("Procédure", ID_FILTRE_PROCEDURES, creer_filtre_procedures()),
+        ("Région", ID_FILTRE_REGIONS, creer_filtre_regions()),
     ]
-    colonnes = [
-        dbc.Col([html.Label(titre, className="fw-bold small mb-1"), composant], md=largeur)
-        for titre, composant, largeur in filtres
-    ]
-    return dbc.Card(dbc.CardBody(dbc.Row(colonnes, className="g-3")), className="mb-4")
+    return html.Div(
+        [
+            html.Div([html.Label(titre, htmlFor=ident), composant])
+            for titre, ident, composant in filtres
+        ],
+        className="filtres",
+    )

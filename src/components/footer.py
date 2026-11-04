@@ -11,11 +11,4 @@ TEXTE_AUTEURS = "Projet data — E4 DSIA, ESIEE Paris — Yanis Malou et Maxime 
 
 def creer_footer() -> html.Footer:
     """Crée le pied de page commun à toutes les pages."""
-    return html.Footer(
-        [
-            html.Hr(),
-            html.P(TEXTE_SOURCES, className="small text-muted mb-1"),
-            html.P(TEXTE_AUTEURS, className="small text-muted"),
-        ],
-        className="mt-5",
-    )
+    return html.Footer([html.P(TEXTE_SOURCES), html.P(TEXTE_AUTEURS)], className="pied")

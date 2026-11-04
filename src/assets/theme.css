@@ -1,0 +1,257 @@
+/* Thème « Registre » du tableau de bord : voir DESIGN.md à la racine du dépôt.
+   Dash charge automatiquement ce fichier (dossier src/assets). Aucune ressource réseau. */
+
+@font-face {
+  font-family: "Geist";
+  src: url("fonts/Geist.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --ground: #f2f4f7;
+  --surface: #ffffff;
+  --border: #e3e6ea;
+  --rule: #eef0f3;
+  --control: #c9ced6;
+  --active: #e4e7ec;
+  --text: #0a0a0a;
+  --text-2: #3c4043;
+  --muted: #5f6368;
+  --primary: #141414;
+  --on-primary: #ffffff;
+  --primary-hover: #2a2a2a;
+  --hue: #1d5fbf;
+  --neutral: #c9ccd1;
+  --select: #d6e2f5;
+  --notice-bg: #fffbeb;
+  --notice-border: #fde68a;
+  --notice-ink: #92400e;
+  --font: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fs-title: 24px;
+  --fs-section: 16px;
+  --fs-kpi: 30px;
+  --fs-body: 14px;
+  --fs-small: 12px;
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --gap: 12px;
+  --pad: 20px;
+  --sidebar: 240px;
+  /* Couleurs des composants Dash (curseurs, listes, cases) alignées sur le thème */
+  --Dash-Fill-Interactive-Strong: var(--hue);
+  --Dash-Fill-Interactive-Weak: var(--select);
+  --Dash-Fill-Primary-Hover: var(--active);
+  --Dash-Fill-Primary-Active: var(--select);
+  --Dash-Text-Primary: var(--text);
+  --Dash-Text-Strong: var(--text);
+  --Dash-Text-Weak: var(--muted);
+  --Dash-Stroke-Strong: var(--control);
+  --Dash-Stroke-Weak: var(--border);
+}
+input[type="radio"], input[type="checkbox"] { accent-color: var(--hue); }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--select); color: var(--text); }
+a { color: inherit; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--hue); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+
+/* Cadre : barre latérale sur le fond, contenu à droite, pas de barre du haut. */
+.app { display: flex; min-height: 100vh; }
+.sidebar {
+  width: var(--sidebar);
+  flex-shrink: 0;
+  padding: 24px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.marque {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px 4px;
+  color: var(--hue);
+  font-weight: 600;
+  text-decoration: none;
+}
+.marque span { color: var(--text); }
+.perimetre { font-size: 13px; color: var(--muted); padding: 0 10px 22px; }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav a {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  color: var(--text-2);
+}
+.nav a:hover { background: var(--active); color: var(--text); }
+.nav a.active { background: var(--active); color: var(--text); font-weight: 500; }
+.sidebar .outils { margin-top: auto; padding: 16px 10px 0; display: flex; flex-direction: column; gap: 6px; }
+.contenu {
+  flex: 1;
+  min-width: 0;
+  padding: 32px 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Titres et texte */
+h1 { font-size: var(--fs-title); line-height: 1.2; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+h2 { font-size: var(--fs-section); line-height: 22px; margin: 0 0 4px; font-weight: 600; }
+.ligne-titre { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+.constat { margin: 8px 0 0; font-size: 15px; line-height: 22px; }
+.note { font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+.texte { max-width: 72ch; line-height: 22px; }
+
+/* Boutons et liens d'action */
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--radius-control);
+  background: var(--primary);
+  color: var(--on-primary);
+  border: 0;
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+.bouton:hover { background: var(--primary-hover); }
+.bouton-discret {
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--control);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--fs-small);
+  cursor: pointer;
+  text-align: left;
+}
+.bouton-discret:hover { border-color: var(--muted); color: var(--text); }
+
+/* Grille de 12 colonnes, un seul écart */
+.grille {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+}
+.col-12 { grid-column: span 12; }
+.col-8 { grid-column: span 8; }
+.col-6 { grid-column: span 6; }
+.col-4 { grid-column: span 4; }
+
+/* Cartes : blanc sur le fond, bord d'un pas, aucune ombre */
+.carte-bloc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--pad);
+  min-width: 0;
+}
+
+/* Chiffres clés : une seule carte divisée en colonnes */
+.chiffres { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0; }
+.chiffre { padding: 18px 20px; border-left: 1px solid var(--border); }
+.chiffre:first-child { border-left: 0; }
+.chiffre .libelle { font-size: 13px; color: var(--muted); }
+.chiffre .valeur {
+  font-size: var(--fs-kpi);
+  line-height: 1.15;
+  margin-top: 6px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.chiffre .unite { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+/* Tableaux : des filets, pas de zèbre, nombres à droite */
+table.tableau { width: 100%; border-collapse: collapse; }
+.tableau th {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  text-align: left;
+  padding: 0 0 8px;
+}
+.tableau td { padding: 10px 0; border-top: 1px solid var(--rule); }
+.tableau th.num, .tableau td.num { text-align: right; font-variant-numeric: tabular-nums; padding-left: 12px; }
+
+/* Filtres */
+.filtres {
+  display: grid;
+  grid-template-columns: 5fr 4fr 3fr;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 16px var(--pad);
+}
+.filtres label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.choix-indicateur { display: flex; flex-wrap: wrap; gap: 16px; }
+.choix-indicateur label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+
+/* Liste de sections (Méthodologie) */
+.section-texte ul { margin: 8px 0 0; padding-left: 18px; }
+.section-texte li { margin: 0 0 6px; line-height: 22px; max-width: 72ch; }
+
+/* États : message dans le cadre du bloc, jamais en bannière */
+.avis {
+  background: var(--notice-bg);
+  border: 1px solid var(--notice-border);
+  color: var(--notice-ink);
+  border-radius: var(--radius-control);
+  padding: 10px 14px;
+  font-size: 13px;
+}
+.message-maj { font-size: var(--fs-small); color: var(--muted); }
+
+/* Pied de page */
+.pied { font-size: 13px; color: var(--muted); padding-top: 4px; }
+.pied p { margin: 0 0 2px; }
+
+/* Graphiques : pas de barre d'outils Plotly */
+.graphique .modebar-container { display: none; }
+
+/* Tablette : la grille passe sur une colonne */
+@media (max-width: 1100px) {
+  .col-8, .col-6, .col-4 { grid-column: span 12; }
+}
+
+/* Téléphone : la barre latérale devient une barre du haut */
+@media (max-width: 800px) {
+  .app { flex-direction: column; }
+  .sidebar { width: auto; padding: 12px 16px; gap: 8px; }
+  .perimetre { display: none; }
+  .nav { flex-direction: row; overflow-x: auto; gap: 4px; }
+  .nav a { flex-shrink: 0; height: 40px; }
+  .sidebar .outils { margin-top: 0; padding: 0; }
+  .contenu { padding: 16px; }
+  .filtres { grid-template-columns: 1fr; }
+  .filtres .dash-slider-mark { display: none; }
+}
+@media (max-width: 640px) {
+  .chiffres { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chiffre:nth-child(3) { border-left: 0; }
+  .chiffre:nth-child(n + 3) { border-top: 1px solid var(--border); }
+  .chiffre .valeur { font-size: 24px; }
+}

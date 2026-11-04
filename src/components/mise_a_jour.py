@@ -1,30 +1,30 @@
 """Bouton « Mettre à jour les données » : vide le cache pour relire la base SQLite."""
 
 from datetime import datetime
+from typing import Any
 
-import dash_bootstrap_components as dbc
 from dash import Input, Output, callback, html
 
 from src.utils import cache
 
 ID_BOUTON_MISE_A_JOUR = "bouton-mise-a-jour"
 ID_MESSAGE_MISE_A_JOUR = "message-mise-a-jour"
+ANNONCE_POLIE: dict[str, Any] = {"aria-live": "polite"}
 
 
 def creer_bouton_mise_a_jour() -> html.Div:
     """Crée le bouton et la zone de message qui confirme la mise à jour."""
     return html.Div(
         [
-            dbc.Button(
+            html.Button(
                 "Mettre à jour les données",
                 id=ID_BOUTON_MISE_A_JOUR,
-                color="secondary",
-                outline=True,
-                size="sm",
+                className="bouton-discret",
+                type="button",
             ),
-            html.Span(id=ID_MESSAGE_MISE_A_JOUR, className="small text-muted ms-2"),
+            html.Span(id=ID_MESSAGE_MISE_A_JOUR, className="message-maj", **ANNONCE_POLIE),
         ],
-        className="mb-3",
+        style={"display": "flex", "flexDirection": "column", "gap": "6px"},
     )
 
 
@@ -36,4 +36,4 @@ def creer_bouton_mise_a_jour() -> html.Div:
 def mettre_a_jour(_n_clics: int | None) -> str:
     """Vide le cache des tables et renvoie un message avec l'heure de la mise à jour."""
     cache.vider_cache()
-    return f"Données rechargées depuis la base à {datetime.now():%H:%M}."
+    return f"Données rechargées à {datetime.now():%H:%M}."
