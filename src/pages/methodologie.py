@@ -1,7 +1,6 @@
 """Page Méthodologie : sources, définitions, choix de nettoyage et limites de l'étude."""
 
 import dash
-import dash_bootstrap_components as dbc
 from dash import html
 
 dash.register_page(__name__, path="/methodologie", name="Méthodologie", order=90)
@@ -58,21 +57,29 @@ SECTIONS = (
 )
 
 
-def creer_section(titre: str, points: tuple[str, ...]) -> dbc.Card:
-    """Crée une carte avec un titre et une liste de points."""
-    return dbc.Card(
-        dbc.CardBody([html.H4(titre, className="h5"), html.Ul([html.Li(p) for p in points])]),
-        className="mb-3",
+def creer_section(titre: str, points: tuple[str, ...]) -> html.Section:
+    """Crée un bloc avec un titre et une liste de points."""
+    return html.Section(
+        [html.H2(titre), html.Ul([html.Li(p) for p in points])],
+        className="carte-bloc section-texte col-6",
     )
 
 
 layout = html.Div(
     [
-        html.H2("Méthodologie"),
-        html.P(
-            "Comment les données ont été choisies, nettoyées et croisées.",
-            className="text-muted",
+        html.Div(
+            [
+                html.H1("Méthodologie"),
+                html.P(
+                    "Comment les données ont été choisies, nettoyées et croisées.",
+                    className="constat",
+                ),
+            ]
         ),
-        *[creer_section(titre, points) for titre, points in SECTIONS],
-    ]
+        html.Div(
+            [creer_section(titre, points) for titre, points in SECTIONS],
+            className="grille",
+        ),
+    ],
+    style={"display": "flex", "flexDirection": "column", "gap": "20px"},
 )

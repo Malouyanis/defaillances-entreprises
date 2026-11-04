@@ -79,21 +79,25 @@ def test_page_et_carte(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     assert page["name"] == "Carte"
     assert "carte-graphique" in str(page["layout"]())
     carte = module_carte()
-    figure = carte.mettre_a_jour_carte(
+    figure, classement = carte.mettre_a_jour_carte(
         [2019, 2023], ["Liquidation judiciaire"], [], "Nombre de défaillances"
     )
     trace = figure.data[0]
     assert list(trace.locations) == ["75"]
     assert list(trace.z) == [1]
     assert list(trace.text) == ["Paris"]
+    assert "Paris" in str(classement)
 
 
 def test_sans_resultat_et_sans_contours(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Filtres sans résultat : figure vide ; fichier des contours absent : message."""
     page_carte(tmp_path, monkeypatch)
     carte = module_carte()
-    vide = carte.mettre_a_jour_carte([2019, 2019], ["Sauvegarde"], [], carte.INDICATEURS[0])
+    vide, message = carte.mettre_a_jour_carte(
+        [2019, 2019], ["Sauvegarde"], [], carte.INDICATEURS[0]
+    )
     assert "Aucune donnée" in str(vide.layout.annotations[0].text)
+    assert "Aucune défaillance" in str(message)
     (tmp_path / "departements.geojson").unlink()
     page = next(p for p in dash.page_registry.values() if p["path"] == "/carte")
     assert "introuvable" in str(page["layout"]())

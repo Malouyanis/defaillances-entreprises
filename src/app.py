@@ -1,39 +1,34 @@
-"""Création de l'application Dash : thème, pages et mise en page générale."""
+"""Création de l'application Dash : pages, barre latérale et thème « Registre »."""
 
 import dash
-import dash_bootstrap_components as dbc
 from dash import Dash, html
 
 import config
 from src.components.footer import creer_footer
-from src.components.mise_a_jour import creer_bouton_mise_a_jour
 from src.components.navbar import creer_navbar
-
-THEME = dbc.themes.FLATLY
 
 
 def creer_application() -> Dash:
-    """Crée l'application Dash multipage avec le thème Bootstrap clair du projet.
+    """Crée l'application Dash multipage avec le thème du projet.
 
     Chaque fichier de src/pages/ qui appelle dash.register_page devient une page :
-    pour ajouter une page, il suffit d'y créer un nouveau fichier. La barre de
-    navigation est construite après la création de l'application, quand Dash a
-    enregistré toutes les pages.
+    pour ajouter une page, il suffit d'y créer un nouveau fichier. Le thème (couleurs,
+    police, mise en page) vient de src/assets/theme.css, que Dash charge tout seul ;
+    aucune feuille de style n'est téléchargée depuis internet. La barre latérale est
+    construite après la création de l'application, quand Dash a enregistré les pages.
     """
     application = Dash(
         __name__,
         use_pages=True,
         pages_folder=str(config.DOSSIER_PAGES),
-        external_stylesheets=[THEME],
         title=config.TITRE_APPLICATION,
         suppress_callback_exceptions=True,
     )
     application.layout = html.Div(
         [
             creer_navbar(),
-            dbc.Container(
-                [creer_bouton_mise_a_jour(), dash.page_container, creer_footer()], fluid=True
-            ),
-        ]
+            html.Main([dash.page_container, creer_footer()], className="contenu"),
+        ],
+        className="app",
     )
     return application
