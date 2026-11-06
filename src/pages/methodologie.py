@@ -41,6 +41,36 @@ SECTIONS = (
         ),
     ),
     (
+        "Modèle de scoring",
+        (
+            "Une régression logistique estime la probabilité de défaillance d'une société à partir"
+            " de ses derniers comptes : liquidité, autonomie financière, fonds propres négatifs,"
+            " endettement, marge d'EBE, résultat négatif, capacité de remboursement, âge et"
+            " secteur.",
+            "Le modèle apprend sur les années 2019 à 2023 et il est jugé sur 2024-2025, des années"
+            " qu'il n'a jamais vues, comme une banque qui note avec un modèle construit sur le"
+            " passé.",
+            "Les effectifs et la catégorie d'entreprise sont exclus : Sirene donne leur état"
+            " actuel, mis à jour après la défaillance (fuite d'information).",
+            "La qualité du classement est mesurée par l'AUC : 0,5 pour un tirage au hasard,"
+            " 1 pour un classement parfait.",
+        ),
+    ),
+    (
+        "Notation de A à E",
+        (
+            "Les seuils entre les notes sont les quintiles des probabilités sur les années"
+            " d'entraînement : chaque note y regroupe un cinquième des sociétés.",
+            "Le modèle apprend sur un échantillon où près d'une société sur deux fait défaut :"
+            " ses probabilités sont recalées sur un taux de défaut annuel de référence de 1 %.",
+            "Ce 1 % est une hypothèse d'ordre de grandeur, pas un chiffre officiel : la Banque de"
+            " France publie des nombres de défaillances, pas un taux. Il change le niveau des"
+            " probabilités, pas l'ordre des notes.",
+            "Une notation est utile si le taux de défaut observé augmente de note en note :"
+            " c'est vérifié sur 2024-2025.",
+        ),
+    ),
+    (
         "Limites",
         (
             "Une minorité des sociétés défaillantes (environ 15 %) ont des comptes clos dans les"
