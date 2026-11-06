@@ -34,3 +34,10 @@ def test_texte_a_jour() -> None:
     assert "laissés vides" in texte
     assert "biais du survivant" in texte
     assert "un tiers" not in texte
+
+
+def test_scoring_et_notation() -> None:
+    """La page explique le modèle, la notation et présente le 1 % comme une hypothèse."""
+    texte = str(page_methodologie()["layout"])
+    for attendu in ("Modèle de scoring", "Notation de A à E", "hypothèse", "AUC"):
+        assert attendu in texte
