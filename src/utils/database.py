@@ -24,9 +24,7 @@ def connexion(chemin: Path = config.CHEMIN_BASE) -> sqlite3.Connection:
     return sqlite3.connect(chemin)
 
 
-def ecrire_table(
-    donnees: pd.DataFrame, nom_table: str, chemin: Path = config.CHEMIN_BASE
-) -> None:
+def ecrire_table(donnees: pd.DataFrame, nom_table: str, chemin: Path = config.CHEMIN_BASE) -> None:
     """Écrit un DataFrame dans une table, en remplaçant la table si elle existe déjà."""
     verifier_nom_table(nom_table)
     with closing(connexion(chemin)) as conn:

@@ -72,7 +72,8 @@ def noter_test(modele: Pipeline, entrainement: pd.DataFrame, test: pd.DataFrame)
     return grille_de_notation(notes, test["defaut"], recalees)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Point d'entrée quand le module est lancé seul : python -m src.utils.notation."""
     pd.set_option("display.width", 200)
     table = scoring.ajouter_variables(database.lire_table(scoring.NOM_TABLE_SCORING))
     entrainement, test = scoring.decouper_par_annee(table)
@@ -82,3 +83,7 @@ if __name__ == "__main__":
     print(grille.to_string())
     print(f"\nTaux de défaut croissant de A à E : {est_croissante(grille)}")
     print(EXPLICATION_TAUX)
+
+
+if __name__ == "__main__":
+    main()

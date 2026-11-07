@@ -60,7 +60,8 @@ def statistiques_ca(table: pd.DataFrame) -> pd.DataFrame:
     return stats.round(0)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Point d'entrée quand le module est lancé seul : python -m src.utils.finances."""
     pd.set_option("display.width", 200)
     scoring = database.lire_table(NOM_TABLE_SCORING)
     print("Chiffre d'affaires du dernier exercice (CA > 0), en euros :")
@@ -68,3 +69,7 @@ if __name__ == "__main__":
     histo = histogramme_ca(scoring)
     print(f"\nHistogramme : {len(histo)} tranches de 1 000 € à 100 M€ (échelle logarithmique)")
     print(histo.astype({"debut": int, "fin": int}).to_string(index=False))
+
+
+if __name__ == "__main__":
+    main()

@@ -62,7 +62,8 @@ def garder_pour_scoring(echantillon: pd.DataFrame) -> pd.DataFrame:
     return echantillon.loc[echantillon["a_des_comptes"]].reset_index(drop=True)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Point d'entrée quand le module est lancé seul : python -m src.utils.echantillon_sain."""
     defaillances = nettoyage_bodacc.nettoyer_bodacc(database.lire_table(NOM_TABLE_RAW))
     sirens_defaillants = set(defaillances["siren"])
 
@@ -102,3 +103,7 @@ if __name__ == "__main__":
         "age_defaillance",
     ]
     print(scoring.groupby("defaut")[colonnes].median().round(1).to_string())
+
+
+if __name__ == "__main__":
+    main()

@@ -95,7 +95,8 @@ def ajouter_libelles(scoring: pd.DataFrame) -> pd.DataFrame:
     return scoring.assign(secteur=scoring["section_naf"].map(libelles), tranche_age=tranches)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Point d'entrée quand le module est lancé seul : python -m src.utils.analyse."""
     pd.set_option("display.width", 200)
     table = ajouter_libelles(database.lire_table(NOM_TABLE_SCORING))
     print(f"Table scoring : {len(table)} lignes, {int(table['defaut'].sum())} défaillantes")
@@ -109,3 +110,7 @@ if __name__ == "__main__":
     for colonne in ("secteur", "tranche_effectifs", "tranche_age"):
         print(f"\nPar {colonne} :")
         print(taux_par_groupe(table, colonne).head(10).to_string())
+
+
+if __name__ == "__main__":
+    main()
