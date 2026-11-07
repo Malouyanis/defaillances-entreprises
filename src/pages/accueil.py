@@ -1,13 +1,13 @@
 """Page d'accueil : combien de sociétés font défaut, quand et où (2019-2025)."""
 
-from typing import Any
-
 import dash
 import pandas as pd
 import plotly.graph_objects as go
 from dash import dcc, html
 
 import config
+from src.components.chiffres import creer_carte_chiffres
+from src.components.graphique import creer_graphique
 from src.utils import cache, database, formatage, geographie
 from src.utils.figures import NEUTRE, TEINTE, appliquer_style
 from src.utils.nettoyage_sirene import SECTIONS_NAF
@@ -16,7 +16,6 @@ dash.register_page(__name__, path="/", name="Accueil", order=0)
 
 NOM_TABLE_CLEANED = "cleaned"
 NOMBRE_DEPARTEMENTS = 6
-NOM_CHIFFRES: dict[str, Any] = {"aria-label": "Chiffres clés"}
 MESSAGE_SANS_DONNEES = (
     "Les données ne sont pas encore disponibles : lancez get_data.py puis clean_data.py."
 )
@@ -114,16 +113,12 @@ def tableau_departements(cleaned: pd.DataFrame) -> html.Table:
     return html.Table([html.Thead(entete), html.Tbody(lignes)], className="tableau")
 
 
-def creer_chiffre(libelle: str, valeur: str, unite: str) -> html.Div:
-    """Une colonne de la carte des chiffres clés : libellé, valeur, unité."""
-    return html.Div(
-        [
-            html.Div(libelle, className="libelle"),
-            html.Div(valeur, className="valeur"),
-            html.Div(unite, className="unite"),
-        ],
-        className="chiffre",
+def description_annees(par_annee: pd.Series) -> str:
+    """Le graphique des années en mots, pour les lecteurs d'écran."""
+    valeurs = " ; ".join(
+        f"{annee} : {formatage.entier(nombre)}" for annee, nombre in par_annee.items()
     )
+    return f"Ouvertures de procédure par année. {valeurs}."
 
 
 def layout() -> html.Div:
@@ -133,7 +128,6 @@ def layout() -> html.Div:
         return html.Div([titre, html.P(MESSAGE_SANS_DONNEES, className="avis")])
     cleaned = cache.charger_table(NOM_TABLE_CLEANED, config.CHEMIN_BASE)
     par_annee = ouvertures_par_annee(cleaned)
-    chiffres = [creer_chiffre(*chiffre) for chiffre in calculer_chiffres_cles(cleaned)]
     total = formatage.entier(len(cleaned))
     return html.Div(
         [
@@ -146,11 +140,7 @@ def layout() -> html.Div:
             ),
             html.Div(
                 [
-                    html.Section(
-                        chiffres,
-                        className="carte-bloc chiffres col-12",
-                        **NOM_CHIFFRES,
-                    ),
+                    creer_carte_chiffres(calculer_chiffres_cles(cleaned), "Chiffres clés"),
                     html.Section(
                         [
                             html.H2("Ouvertures de procédure par année"),
@@ -159,10 +149,9 @@ def layout() -> html.Div:
                                 " rattrapage au-dessus du niveau de 2019.",
                                 className="note",
                             ),
-                            dcc.Graph(
+                            creer_graphique(
+                                description_annees(par_annee),
                                 figure=creer_graphique_annees(par_annee),
-                                config={"displayModeBar": False},
-                                className="graphique",
                             ),
                         ],
                         className="carte-bloc col-8",

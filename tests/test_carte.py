@@ -8,6 +8,7 @@ from types import ModuleType
 import dash
 import pandas as pd
 import pytest
+from dash import Patch
 
 import config
 from src.app import creer_application
@@ -61,6 +62,12 @@ def page_carte(dossier: Path, monkeypatch: pytest.MonkeyPatch) -> dict:
     return next(page for page in dash.page_registry.values() if page["path"] == "/carte")
 
 
+def valeurs_modifiees(modification: Patch) -> dict[tuple, list]:
+    """Ce que la modification partielle change dans la figure : emplacement → nouvelle valeur."""
+    operations = modification.to_plotly_json()["operations"]
+    return {tuple(op["location"]): op["params"]["value"] for op in operations}
+
+
 def test_calculer_par_departement() -> None:
     """Nombre, part de liquidations et âge médian calculés par département."""
     carte = module_carte()
@@ -74,29 +81,32 @@ def test_calculer_par_departement() -> None:
 
 
 def test_page_et_carte(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """La page s'affiche avec les filtres et le callback dessine une carte filtrée."""
+    """La page dessine la carte une fois ; le callback ne change ensuite que les valeurs."""
     page = page_carte(tmp_path, monkeypatch)
     assert page["name"] == "Carte"
-    assert "carte-graphique" in str(page["layout"]())
+    texte = str(page["layout"]())
+    assert "carte-graphique" in texte
+    assert "Corse-du-Sud" in texte
     carte = module_carte()
-    figure, classement = carte.mettre_a_jour_carte(
+    modification, classement = carte.mettre_a_jour_carte(
         [2019, 2023], ["Liquidation judiciaire"], [], "Nombre de défaillances"
     )
-    trace = figure.data[0]
-    assert list(trace.locations) == ["75"]
-    assert list(trace.z) == [1]
-    assert list(trace.text) == ["Paris"]
+    valeurs = valeurs_modifiees(modification)
+    assert valeurs[("data", 0, "locations")] == ["75"]
+    assert valeurs[("data", 0, "z")] == [1]
+    assert valeurs[("data", 0, "text")] == ["Paris"]
+    assert "geojson" not in str(modification.to_plotly_json())
     assert "Paris" in str(classement)
 
 
 def test_sans_resultat_et_sans_contours(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Filtres sans résultat : figure vide ; fichier des contours absent : message."""
+    """Filtres sans résultat : carte sans valeurs ; fichier des contours absent : message."""
     page_carte(tmp_path, monkeypatch)
     carte = module_carte()
     vide, message = carte.mettre_a_jour_carte(
         [2019, 2019], ["Sauvegarde"], [], carte.INDICATEURS[0]
     )
-    assert "Aucune donnée" in str(vide.layout.annotations[0].text)
+    assert valeurs_modifiees(vide)[("data", 0, "z")] == []
     assert "Aucune défaillance" in str(message)
     (tmp_path / "departements.geojson").unlink()
     page = next(p for p in dash.page_registry.values() if p["path"] == "/carte")

@@ -3,7 +3,7 @@
 import dash
 import pandas as pd
 import plotly.graph_objects as go
-from dash import Input, Output, callback, dcc, html
+from dash import Input, Output, callback, html
 
 import config
 from src.components.filtres import (
@@ -12,6 +12,7 @@ from src.components.filtres import (
     ID_FILTRE_REGIONS,
     creer_barre_filtres,
 )
+from src.components.graphique import creer_graphique
 from src.utils import cache, database, filtrage, formatage
 from src.utils.figures import (
     COULEUR_TEXTE_SECONDAIRE,
@@ -28,6 +29,10 @@ CHIFFRES_ALIGNES = {"fontVariantNumeric": "tabular-nums"}
 ID_GRAPHIQUE = "evolution-graphique"
 ID_TABLEAU = "evolution-tableau"
 ID_CONSTAT = "evolution-constat"
+DESCRIPTION_GRAPHIQUE = (
+    "Courbes des ouvertures de procédure mois par mois, une par procédure, avec le premier"
+    " confinement au printemps 2020. Les totaux de chaque année sont dans le tableau Par année."
+)
 EVENEMENTS = ((("2020-03", "2020-05"), "1er confinement"),)
 MOIS = (
     "janv.",
@@ -178,11 +183,7 @@ def layout() -> html.Div:
                                 " pendant les vacances judiciaires.",
                                 className="note",
                             ),
-                            dcc.Graph(
-                                id=ID_GRAPHIQUE,
-                                config={"displayModeBar": False},
-                                className="graphique",
-                            ),
+                            creer_graphique(DESCRIPTION_GRAPHIQUE, id=ID_GRAPHIQUE),
                         ],
                         className="carte-bloc col-8",
                     ),

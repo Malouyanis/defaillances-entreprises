@@ -47,6 +47,8 @@ def test_page_complete(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     financiers = page.coefficients_financiers(page.calculer_resultats(chemin).coefficients)
     assert not financiers["variable"].str.startswith("section_naf_").any()
     assert "Liquidité" in set(financiers["libelle"])
+    assert page.description_notes(page.calculer_resultats(chemin).grille).count("note ") == 5
+    assert page.description_coefficients(financiers).startswith("Coefficients de la régression")
 
 
 def test_sans_base(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

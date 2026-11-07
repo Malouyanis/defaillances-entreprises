@@ -3,14 +3,15 @@
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
-from typing import Any
 
 import dash
 import pandas as pd
 import plotly.graph_objects as go
-from dash import dcc, html
+from dash import html
 
 import config
+from src.components.chiffres import creer_carte_chiffres
+from src.components.graphique import creer_graphique
 from src.utils import database, formatage, notation, scoring
 from src.utils.figures import NEUTRE_FONCE, TEINTE, appliquer_style
 
@@ -33,7 +34,6 @@ LIBELLES_VARIABLES = {
 MESSAGE_SANS_DONNEES = (
     "Les données ne sont pas encore disponibles : lancez get_data.py puis clean_data.py."
 )
-NOM_CHIFFRES: dict[str, Any] = {"aria-label": "Qualité du modèle"}
 
 
 @dataclass(frozen=True)
@@ -146,16 +146,24 @@ def tableau_grille(grille: pd.DataFrame) -> html.Table:
     return html.Table([html.Thead(entete), html.Tbody(lignes)], className="tableau")
 
 
-def creer_chiffre(libelle: str, valeur: str, unite: str) -> html.Div:
-    """Une colonne de la carte des chiffres : libellé, valeur, précision."""
-    return html.Div(
-        [
-            html.Div(libelle, className="libelle"),
-            html.Div(valeur, className="valeur"),
-            html.Div(unite, className="unite"),
-        ],
-        className="chiffre",
+def description_notes(grille: pd.DataFrame) -> str:
+    """Le graphique des notes en mots, pour les lecteurs d'écran."""
+    valeurs = " ; ".join(
+        f"note {note} : {formatage.pourcentage(taux, 1)}"
+        for note, taux in grille["taux_defaut_observe"].items()
     )
+    return f"Taux de défaut observé par note. {valeurs}."
+
+
+def description_coefficients(financiers: pd.DataFrame) -> str:
+    """Le graphique des coefficients en mots, pour les lecteurs d'écran."""
+    valeurs = " ; ".join(
+        f"{libelle} : {formatage.decimal(coefficient, 2)}"
+        for libelle, coefficient in zip(
+            financiers["libelle"], financiers["coefficient"], strict=True
+        )
+    )
+    return f"Coefficients de la régression, positif = plus de risque. {valeurs}."
 
 
 def layout() -> html.Div:
@@ -165,25 +173,22 @@ def layout() -> html.Div:
         return html.Div([titre, html.P(MESSAGE_SANS_DONNEES, className="avis")])
     resultats = calculer_resultats(config.CHEMIN_BASE)
     chiffres = [
-        creer_chiffre(
-            "AUC sur 2024-2025", formatage.decimal(resultats.auc_test, 3), "années de test"
-        ),
-        creer_chiffre(
-            "AUC sur 2019-2023", formatage.decimal(resultats.auc_entrainement, 3), "entraînement"
-        ),
-        creer_chiffre("Sociétés notées", formatage.entier(resultats.societes_test), "en 2024-2025"),
-        creer_chiffre(
+        ("AUC sur 2024-2025", formatage.decimal(resultats.auc_test, 3), "années de test"),
+        ("AUC sur 2019-2023", formatage.decimal(resultats.auc_entrainement, 3), "entraînement"),
+        ("Sociétés notées", formatage.entier(resultats.societes_test), "en 2024-2025"),
+        (
             "Taux de référence",
             formatage.pourcentage(notation.TAUX_DEFAUT_REFERENCE),
             "par an, hypothèse",
         ),
     ]
+    financiers = coefficients_financiers(resultats.coefficients)
     return html.Div(
         [
             html.Div([titre, html.P(constat(resultats), className="constat")]),
             html.Div(
                 [
-                    html.Section(chiffres, className="carte-bloc chiffres col-12", **NOM_CHIFFRES),
+                    creer_carte_chiffres(chiffres, "Qualité du modèle"),
                     html.Section(
                         [
                             html.H2("Taux de défaut observé par note"),
@@ -192,10 +197,9 @@ def layout() -> html.Div:
                                 " note pour que la notation soit utile.",
                                 className="note",
                             ),
-                            dcc.Graph(
+                            creer_graphique(
+                                description_notes(resultats.grille),
                                 figure=creer_graphique_notes(resultats.grille),
-                                config={"displayModeBar": False},
-                                className="graphique",
                             ),
                         ],
                         className="carte-bloc col-6",
@@ -208,12 +212,9 @@ def layout() -> html.Div:
                                 " bleu ce qui augmente le risque, en gris ce qui le diminue.",
                                 className="note",
                             ),
-                            dcc.Graph(
-                                figure=creer_graphique_coefficients(
-                                    coefficients_financiers(resultats.coefficients)
-                                ),
-                                config={"displayModeBar": False},
-                                className="graphique",
+                            creer_graphique(
+                                description_coefficients(financiers),
+                                figure=creer_graphique_coefficients(financiers),
                             ),
                         ],
                         className="carte-bloc col-6",

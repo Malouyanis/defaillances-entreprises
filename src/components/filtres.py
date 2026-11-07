@@ -12,7 +12,7 @@ from src.utils.figures import COULEURS_PROCEDURES
 ID_FILTRE_ANNEES = "filtre-annees"
 ID_FILTRE_PROCEDURES = "filtre-procedures"
 ID_FILTRE_REGIONS = "filtre-regions"
-LIBELLES_LISTES = {
+LIBELLES_LISTES: dcc.Dropdown.Labels = {
     "select_all": "Tout sélectionner",
     "deselect_all": "Tout désélectionner",
     "selected_count": "{num_selected} choisies",
