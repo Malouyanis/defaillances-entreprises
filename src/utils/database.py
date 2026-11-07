@@ -1,6 +1,7 @@
 """Accès à la base SQLite du projet : connexion, écriture et lecture de tables."""
 
 import sqlite3
+from collections.abc import Sequence
 from contextlib import closing
 from pathlib import Path
 
@@ -41,7 +42,7 @@ def lire_table(nom_table: str, chemin: Path = config.CHEMIN_BASE) -> pd.DataFram
 
 
 def lire_requete(
-    requete: str, parametres: tuple[object, ...] = (), chemin: Path = config.CHEMIN_BASE
+    requete: str, parametres: Sequence[str | int | float] = (), chemin: Path = config.CHEMIN_BASE
 ) -> pd.DataFrame:
     """Exécute une requête SQL de lecture (avec paramètres ?) et renvoie le résultat."""
     with closing(connexion(chemin)) as conn:
