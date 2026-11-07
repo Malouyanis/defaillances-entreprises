@@ -27,11 +27,7 @@ HAUTEUR_FIGURE = 300
 SEPARATEURS_FR = ", "
 FORMAT_NOMBRES = ",~f"
 NOM_TEMPLATE = "registre"
-FOND_CARTE = {
-    "version": 8,
-    "sources": {},
-    "layers": [{"id": "fond", "type": "background", "paint": {"background-color": COULEUR_FOND}}],
-}
+FOND_CARTE = "white-bg"
 
 
 def creer_template() -> go.layout.Template:
