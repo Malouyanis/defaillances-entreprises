@@ -53,13 +53,16 @@ def test_chiffres_cles() -> None:
 
 
 def test_constat_et_graphique() -> None:
-    """La phrase nomme l'année record ; la barre du record porte la teinte du projet."""
+    """Phrase de l'année record, barre du record dans la teinte, description en texte."""
     accueil = module_accueil()
     par_annee = accueil.ouvertures_par_annee(cleaned_exemple())
     assert accueil.constat(par_annee).startswith("2024 est l'année record")
     assert "+200,0 % sur 2023" in accueil.constat(par_annee)
     figure = accueil.creer_graphique_annees(par_annee)
     assert list(figure.data[0].marker.color).count(accueil.TEINTE) == 1
+    description = accueil.description_annees(par_annee)
+    assert description.startswith("Ouvertures de procédure par année.")
+    assert "2024 : 3" in description
 
 
 def test_page_complete(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
