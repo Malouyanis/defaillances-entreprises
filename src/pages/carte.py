@@ -3,7 +3,7 @@
 import dash
 import pandas as pd
 import plotly.graph_objects as go
-from dash import Input, Output, callback, dcc, html
+from dash import Input, Output, Patch, callback, dcc, html
 
 import config
 from src.components.filtres import (
@@ -12,6 +12,7 @@ from src.components.filtres import (
     ID_FILTRE_REGIONS,
     creer_barre_filtres,
 )
+from src.components.graphique import creer_graphique
 from src.utils import cache, database, filtrage, formatage, geographie
 from src.utils.figures import (
     ECHELLE_CONTINUE,
@@ -19,7 +20,6 @@ from src.utils.figures import (
     FORMAT_NOMBRES,
     TEINTE,
     appliquer_style,
-    figure_vide,
 )
 
 dash.register_page(__name__, path="/carte", name="Carte", order=10)
@@ -30,10 +30,17 @@ ID_GRAPHIQUE = "carte-graphique"
 ID_CLASSEMENT = "carte-classement"
 CENTRE_FRANCE = {"lat": 46.6, "lon": 2.5}
 NOMBRE_LIGNES = 11
+SANS_DEPARTEMENT = pd.DataFrame(
+    {"departement": pd.Series(dtype=str), "valeur": pd.Series(dtype=float)}
+)
 INDICATEURS = (
     "Nombre de défaillances",
     "Part de liquidations (%)",
     "Âge médian à la défaillance (ans)",
+)
+DESCRIPTION_CARTE = (
+    "Carte des départements de France métropolitaine, du bleu clair au bleu foncé selon"
+    " l'indicateur choisi. Les départements en tête sont listés dans le tableau En tête."
 )
 MESSAGE_SANS_DONNEES = (
     "Les données ne sont pas encore disponibles : lancez get_data.py puis clean_data.py."
@@ -56,8 +63,12 @@ def calculer_par_departement(defaillances: pd.DataFrame, indicateur: str) -> pd.
     return valeurs.round(1).rename("valeur").reset_index()
 
 
-def creer_carte(par_departement: pd.DataFrame, geojson: dict, indicateur: str) -> go.Figure:
-    """Dessine la carte des départements, colorés selon l'indicateur, sans fond réseau."""
+def creer_carte(par_departement: pd.DataFrame, geojson: dict) -> go.Figure:
+    """Dessine la carte des départements, colorés selon l'indicateur, sans fond réseau.
+
+    Elle n'est dessinée qu'une fois, à l'ouverture de la page : les contours (lourds) partent
+    alors vers le navigateur ; les filtres ne changent ensuite que les valeurs (voir Patch).
+    """
     noms = geographie.noms_departements(geojson)
     figure = go.Figure(
         go.Choroplethmap(
@@ -86,6 +97,19 @@ def creer_carte(par_departement: pd.DataFrame, geojson: dict, indicateur: str) -
         margin={"l": 0, "r": 0, "t": 0, "b": 0},
     )
     return figure
+
+
+def changer_valeurs(par_departement: pd.DataFrame, geojson: dict) -> Patch:
+    """Modification partielle de la carte : seulement les départements et leurs valeurs.
+
+    Avec Patch, Dash n'envoie au navigateur que ces trois listes, pas les contours.
+    """
+    noms = geographie.noms_departements(geojson)
+    modification = Patch()
+    modification["data"][0]["locations"] = par_departement["departement"].to_list()
+    modification["data"][0]["z"] = par_departement["valeur"].to_list()
+    modification["data"][0]["text"] = par_departement["departement"].map(noms).to_list()
+    return modification
 
 
 def valeur_affichee(valeur: float, indicateur: str) -> str:
@@ -139,6 +163,9 @@ def layout() -> html.Div:
     if not geographie.chemin_geojson().exists():
         contenu.append(html.P(MESSAGE_SANS_CONTOURS, className="avis"))
         return html.Div(contenu)
+    cleaned = cache.charger_table(NOM_TABLE_CLEANED, config.CHEMIN_BASE)
+    geojson = geographie.charger_geojson(geographie.chemin_geojson())
+    carte_initiale = creer_carte(calculer_par_departement(cleaned, INDICATEURS[0]), geojson)
     choix = dcc.RadioItems(
         id=ID_INDICATEUR,
         options=list(INDICATEURS),
@@ -155,10 +182,8 @@ def layout() -> html.Div:
                             html.H2("Indicateur par département"),
                             choix,
                             dcc.Loading(
-                                dcc.Graph(
-                                    id=ID_GRAPHIQUE,
-                                    config={"displayModeBar": False},
-                                    className="graphique",
+                                creer_graphique(
+                                    DESCRIPTION_CARTE, id=ID_GRAPHIQUE, figure=carte_initiale
                                 ),
                                 color=TEINTE,
                             ),
@@ -195,16 +220,16 @@ def layout() -> html.Div:
 )
 def mettre_a_jour_carte(
     annees: list[int], procedures: list[str], regions: list[str], indicateur: str
-) -> tuple[go.Figure, html.Table | html.P]:
-    """Redessine la carte et le classement à chaque changement de filtre ou d'indicateur."""
+) -> tuple[Patch, html.Table | html.P]:
+    """Change les valeurs de la carte et le classement à chaque changement de filtre."""
     cleaned = cache.charger_table(NOM_TABLE_CLEANED, config.CHEMIN_BASE)
     filtrees = filtrage.appliquer_filtres(cleaned, annees, procedures, regions)
+    geojson = geographie.charger_geojson(geographie.chemin_geojson())
     if filtrees.empty:
         message = html.P("Aucune défaillance pour ces filtres.", className="note")
-        return figure_vide(), message
-    geojson = geographie.charger_geojson(geographie.chemin_geojson())
+        return changer_valeurs(SANS_DEPARTEMENT, geojson), message
     par_departement = calculer_par_departement(filtrees, indicateur)
     return (
-        creer_carte(par_departement, geojson, indicateur),
+        changer_valeurs(par_departement, geojson),
         creer_classement(par_departement, geojson, indicateur),
     )
