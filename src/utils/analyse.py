@@ -16,6 +16,7 @@ VARIABLES_ANALYSE = (
     "fonds_propres_negatifs",
     "age_defaillance",
 )
+QUARTILES = {0.25: "Q1", 0.5: "médiane", 0.75: "Q3"}
 BORNES_AGE = (0, 3, 5, 10, 20, float("inf"))
 TRANCHES_AGE = ("moins de 3 ans", "3 à 5 ans", "5 à 10 ans", "10 à 20 ans", "20 ans et plus")
 MISE_EN_GARDE = (
@@ -61,14 +62,12 @@ def pouvoir_discriminant(scoring: pd.DataFrame) -> pd.DataFrame:
 
 def comparer_groupes(scoring: pd.DataFrame) -> pd.DataFrame:
     """Premier quartile, médiane et troisième quartile de chaque variable, par groupe."""
-    quartiles = scoring.groupby("defaut")[list(VARIABLES_ANALYSE)].quantile([0.25, 0.5, 0.75])
-    tableau = quartiles.T
-    tableau.columns = [
-        f"{'défaillantes' if defaut == 1 else 'saines'} {nom}"
-        for defaut, quantile in tableau.columns
-        for nom in [{0.25: "Q1", 0.5: "médiane", 0.75: "Q3"}[quantile]]
-    ]
-    return tableau.round(1)
+    colonnes: dict[str, pd.Series] = {}
+    for defaut, groupe in ((0, "saines"), (1, "défaillantes")):
+        variables = scoring.loc[scoring["defaut"] == defaut, list(VARIABLES_ANALYSE)]
+        for quantile, nom in QUARTILES.items():
+            colonnes[f"{groupe} {nom}"] = variables.quantile(quantile)
+    return pd.DataFrame(colonnes).round(1)
 
 
 def piege_endettement(scoring: pd.DataFrame) -> pd.DataFrame:
@@ -78,13 +77,13 @@ def piege_endettement(scoring: pd.DataFrame) -> pd.DataFrame:
     fait croire que les défaillantes sont moins endettées.
     """
     groupes = scoring.groupby(["fonds_propres_negatifs", "defaut"])["taux_d_endettement"]
-    return groupes.agg(effectif="size", mediane="median").round(1)
+    return pd.DataFrame(groupes.agg(effectif="size", mediane="median")).round(1)
 
 
 def taux_par_groupe(scoring: pd.DataFrame, colonne: str) -> pd.DataFrame:
     """Effectif et taux de défaut de l'échantillon pour chaque valeur d'une colonne."""
     groupes = scoring.groupby(colonne, observed=True)["defaut"]
-    tableau = groupes.agg(effectif="size", taux_defaut="mean")
+    tableau = pd.DataFrame(groupes.agg(effectif="size", taux_defaut="mean"))
     tableau["taux_defaut"] = tableau["taux_defaut"].round(3)
     return tableau.sort_values("taux_defaut", ascending=False)
 
@@ -96,7 +95,8 @@ def ajouter_libelles(scoring: pd.DataFrame) -> pd.DataFrame:
     return scoring.assign(secteur=scoring["section_naf"].map(libelles), tranche_age=tranches)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Point d'entrée quand le module est lancé seul : python -m src.utils.analyse."""
     pd.set_option("display.width", 200)
     table = ajouter_libelles(database.lire_table(NOM_TABLE_SCORING))
     print(f"Table scoring : {len(table)} lignes, {int(table['defaut'].sum())} défaillantes")
@@ -110,3 +110,7 @@ if __name__ == "__main__":
     for colonne in ("secteur", "tranche_effectifs", "tranche_age"):
         print(f"\nPar {colonne} :")
         print(taux_par_groupe(table, colonne).head(10).to_string())
+
+
+if __name__ == "__main__":
+    main()

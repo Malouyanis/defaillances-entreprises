@@ -109,7 +109,8 @@ def coefficients(modele: Pipeline) -> pd.DataFrame:
     return tableau.loc[ordre].reset_index(drop=True)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Point d'entrée quand le module est lancé seul : python -m src.utils.scoring."""
     scoring = ajouter_variables(database.lire_table(NOM_TABLE_SCORING))
     entrainement, test = decouper_par_annee(scoring)
     for nom, table in (("Entraînement (2019-2023)", entrainement), ("Test (2024-2025)", test)):
@@ -124,3 +125,7 @@ if __name__ == "__main__":
     print(tableau.loc[~secteurs].to_string(index=False))
     print("\nCoefficients des secteurs (positif = secteur plus risqué) :")
     print(tableau.loc[secteurs].to_string(index=False))
+
+
+if __name__ == "__main__":
+    main()

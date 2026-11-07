@@ -31,4 +31,5 @@ def vider_cache() -> None:
 
 def tables_en_cache() -> int:
     """Nombre de tables actuellement gardées en mémoire."""
-    return _lire_table_memorisee.cache_info().currsize
+    # pylint se trompe ici : cache_info() appartient à lru_cache et ne prend aucun argument.
+    return _lire_table_memorisee.cache_info().currsize  # pylint: disable=no-value-for-parameter

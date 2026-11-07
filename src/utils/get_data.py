@@ -70,8 +70,8 @@ def garder_jugements_ouverture(annonces: pd.DataFrame) -> pd.DataFrame:
     annonces = annonces.assign(
         jugement_nature=natures_dates.str[0], jugement_date=natures_dates.str[1]
     )
-    est_ouverture = annonces["jugement_nature"].str.lower().str.startswith(
-        DEBUT_NATURE_OUVERTURE, na=False
+    est_ouverture = (
+        annonces["jugement_nature"].str.lower().str.startswith(DEBUT_NATURE_OUVERTURE, na=False)
     )
     table = annonces.loc[est_ouverture, list(COLONNES_RAW)].reset_index(drop=True)
     return table.map(liste_en_texte)
@@ -95,7 +95,8 @@ def recuperer_donnees(
     return table_raw
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Point d'entrée quand le module est lancé seul : python -m src.utils.get_data."""
     if len(sys.argv) == 3:
         debut, fin = int(sys.argv[1]), int(sys.argv[2])
     else:
@@ -105,3 +106,7 @@ if __name__ == "__main__":
     print(f"Table raw : {len(table)} jugements d'ouverture ({debut}-{fin})")
     print(f"Base {config.CHEMIN_BASE.name} : {taille_mo} Mo")
     print(table["jugement_nature"].value_counts().head(5).to_string())
+
+
+if __name__ == "__main__":
+    main()

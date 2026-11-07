@@ -76,7 +76,8 @@ def taux_renseignes(comptes_bruts: pd.DataFrame) -> pd.DataFrame:
     return renseignes.groupby("confidentiality").mean().round(2)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Point d'entrée quand le module est lancé seul : python -m src.utils.jointure."""
     defaillantes = nettoyage_bodacc.nettoyer_bodacc(database.lire_table(NOM_TABLE_RAW))
     sirens_defaillants = set(defaillantes["siren"])
     print(f"Défaillantes BODACC : {len(defaillantes)}")
@@ -102,3 +103,7 @@ if __name__ == "__main__":
     print(f"Âge médian à la défaillance : {jointes['age_defaillance'].median():.1f} ans")
     print(jointes.groupby("annee")["a_des_comptes"].mean().round(3).to_string())
     print(jointes["secteur"].value_counts().head(10).to_string())
+
+
+if __name__ == "__main__":
+    main()

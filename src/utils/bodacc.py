@@ -35,10 +35,7 @@ def periode_mois(annee: int, mois: int) -> tuple[str, str]:
 def filtre_procedures_collectives(annee: int, mois: int) -> str:
     """Construit le filtre de l'API : procédures collectives publiées pendant le mois."""
     debut, fin = periode_mois(annee, mois)
-    return (
-        f'familleavis="collective" and dateparution>="{debut}" '
-        f'and dateparution<"{fin}"'
-    )
+    return f'familleavis="collective" and dateparution>="{debut}" and dateparution<"{fin}"'
 
 
 def chemin_fichier_mois(annee: int, mois: int) -> Path:
@@ -60,9 +57,7 @@ def telecharger_mois(annee: int, mois: int, forcer: bool = False) -> Path:
         "where": filtre_procedures_collectives(annee, mois),
         "select": ",".join(COLONNES_BODACC),
     }
-    reponse = requests.get(
-        config.BODACC_URL_EXPORT, params=parametres, timeout=config.TIMEOUT_HTTP
-    )
+    reponse = requests.get(config.BODACC_URL_EXPORT, params=parametres, timeout=config.TIMEOUT_HTTP)
     reponse.raise_for_status()
     chemin_temporaire = chemin.with_suffix(".tmp")
     chemin_temporaire.write_bytes(reponse.content)

@@ -70,7 +70,7 @@ def test_taux_renseignes() -> None:
     """La part de valeurs renseignées est calculée pour chaque niveau de confidentialité."""
     comptes = comptes_exemple().assign(
         confidentiality=["Public", "Partiellement confidentiel", "Partiellement confidentiel"],
-        chiffre_d_affaires=[300_000.0, None, None],
+        chiffre_d_affaires=[300_000.0, float("nan"), float("nan")],
     )
     taux = jointure.taux_renseignes(comptes)
     assert taux.loc["Public", "chiffre_d_affaires"] == 1.0
