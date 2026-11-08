@@ -50,6 +50,7 @@ def test_page_et_callback(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> No
     texte = str(finances.layout())
     assert "Chiffre d'affaires" in texte
     assert "Construction" in texte
+    assert "lecteur-ecran" in texte
     figure, tableau, constat = finances.mettre_a_jour_finances(None)
     assert [trace.name for trace in figure.data] == ["Défaillantes", "Saines"]
     assert figure.data[0].marker.color == finances.TEINTE

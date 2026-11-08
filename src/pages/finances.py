@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
 
 import config
+from src.components.graphique import creer_graphique
 from src.utils import cache, database, finances, formatage
 from src.utils.figures import NEUTRE, TEINTE, appliquer_style, figure_vide
 from src.utils.nettoyage_sirene import SECTIONS_NAF
@@ -18,6 +19,11 @@ ID_GRAPHIQUE = "finances-graphique"
 ID_TABLEAU = "finances-tableau"
 ID_CONSTAT = "finances-constat"
 SEUIL_GRAND_CA = 10_000_000
+DESCRIPTION_GRAPHIQUE = (
+    "Barres de la part des sociétés défaillantes et des sociétés saines dans chaque tranche"
+    " de chiffre d'affaires, de 1 k€ à 100 M€ sur une échelle logarithmique. Les quartiles,"
+    " la médiane et la moyenne de chaque groupe sont dans le tableau Statistiques par groupe."
+)
 EFFECTIF_MINIMUM = 30
 COULEURS_GROUPES = {"Défaillantes": TEINTE, "Saines": NEUTRE}
 GRADUATIONS = {3: "1 k€", 4: "10 k€", 5: "100 k€", 6: "1 M€", 7: "10 M€", 8: "100 M€"}
@@ -167,11 +173,7 @@ def layout() -> html.Div:
                                 " la précédente.",
                                 className="note",
                             ),
-                            dcc.Graph(
-                                id=ID_GRAPHIQUE,
-                                config={"displayModeBar": False},
-                                className="graphique",
-                            ),
+                            creer_graphique(DESCRIPTION_GRAPHIQUE, id=ID_GRAPHIQUE),
                         ],
                         className="carte-bloc col-8",
                     ),

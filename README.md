@@ -129,4 +129,35 @@ Les probabilités sont **recalées** sur un taux de défaut annuel de référenc
 
 ## Copyright
 
-*Copyright : à compléter.*
+### Usage de l'intelligence artificielle
+
+Nous déclarons que **le code de ce dépôt a été écrit par Claude**, l'assistant d'intelligence artificielle d'Anthropic, sous notre direction. Nous n'avons pas recopié de code d'autres projets ; aucune ligne n'est empruntée à un dépôt existant.
+
+Notre part du travail :
+
+- le **choix du sujet** et de la question étudiée, orientés risque de crédit ;
+- le **test de faisabilité** des sources (6 octobre 2026), puis la recherche d'une donnée financière continue, le chiffre d'affaires, demandée par notre enseignant ;
+- le **cadrage** : périmètre, définitions, sources retenues, répartition des rôles ;
+- le **découpage en missions** quotidiennes : chacun de nous a lancé, relu, exécuté, testé et poussé ses missions par pull request ;
+- les **choix de méthode**, discutés avant d'être codés (jugements d'ouverture seulement, âge au jugement, comptes antérieurs au jugement, échantillon de sociétés saines, découpage par années pour le scoring, hypothèse du 1 %) ;
+- la **vérification des résultats** sur la vraie base et l'**analyse** présentée dans ce README ;
+- le **choix de l'identité visuelle** parmi trois propositions, et les retours sur l'interface (par exemple le bug de la carte qui ne se recolorait pas, repéré par Yanis).
+
+### Prompts structurants
+
+Les demandes qui ont orienté le projet, reformulées et regroupées, fidèles au sens :
+
+1. **Cadrage** : « Nous faisons le projet data du cours Python 2 en binôme, tout en Python avec Dash. Sujet : les défaillances d'entreprises en France, orientées risque de crédit. Question : quels profils d'entreprises présentent le plus de risque de crédit ? Périmètre : 2019-2025, France métropolitaine, sociétés uniquement, liquidations et redressements (sauvegardes à part). Tu écris le code ; nous te donnons une mission à la fois, nous la relisons, la testons et la poussons. »
+2. **Donnée financière** : « Notre enseignant veut une vraie donnée financière continue, comme le chiffre d'affaires, en variable principale de l'histogramme, et veut voir d'où viennent les données. Trouve une source ouverte (piste : les ratios financiers BCE/INPI) et teste-la. »
+3. **Organisation Git** : « Chaque mission sur une branche feat/ ou fix/, commits en français, fusion dans main par pull request. Aucun secret dans le dépôt. Explique chaque mission pour que nous sachions la défendre. »
+4. **Mission type** : « Mission du jour : [la tâche]. Écris le code et ses tests, vérifie-les sur la vraie base, et donne-nous les résultats attendus pour que nous puissions contrôler les nôtres. »
+5. **Identité visuelle** : « Le site ressemble aux autres projets faits avec une IA. Propose trois directions artistiques sobres et crédibles pour un recruteur en banque-finance, sans animation. Aucune dépendance JavaScript : l'enseignant doit pouvoir cloner puis lancer avec pip et python. »
+6. **Scoring** : « Construis un modèle de probabilité de défaut évalué sur des années qu'il n'a pas vues, puis une notation de A à E comme une banque. »
+7. **Qualité** : « L'enseignant note aussi la qualité du code : corrige ce que signalent mypy, pylint, radon et ruff, sans changer les résultats. »
+
+### Données et ressources
+
+- Données : BODACC (DILA), ratios financiers BCE/INPI (DGE), base Sirene (INSEE), sous [Licence Ouverte Etalab 2.0](https://www.etalab.gouv.fr/licence-ouverte-open-licence/).
+- Contours des départements : `data/departements.geojson`, issu d'Admin Express (IGN), Licence Ouverte Etalab 2.0.
+- Police : [Geist](https://github.com/google/fonts/tree/main/ofl/geist), sous SIL Open Font License (`src/assets/fonts/OFL.txt`).
+- Bibliothèques : Dash, Plotly, pandas, scikit-learn, requests, pyarrow, sous leurs licences respectives.
