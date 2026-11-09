@@ -67,6 +67,8 @@ Tous les chiffres ci-dessous sortent de la base `data/db.sqlite` du dépôt ; le
 
 ### 1. Combien de défaillances, et quand ?
 
+*À voir dans le dashboard : page Évolution, graphique « Ouvertures de procédure par mois » (le creux de 2021 et le record de 2024) et tableau « Par année ».*
+
 **272 219 sociétés** ont fait défaut en France métropolitaine entre 2019 et 2025.
 
 | Année | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 |
@@ -79,12 +81,16 @@ Tous les chiffres ci-dessous sortent de la base `data/db.sqlite` du dépôt ; le
 
 ### 2. Quelles sociétés ?
 
+*À voir dans le dashboard : page Carte, indicateurs « Part de liquidations (%) » et « Âge médian à la défaillance (ans) » avec le classement « En tête », et page Accueil, « Départements les plus touchés ».*
+
 - **70,1 % des ouvertures sont des liquidations directes**, 27,2 % des redressements et 2,7 % des sauvegardes : la plupart des sociétés arrivent au tribunal trop tard pour être sauvées.
 - **Âge médian au jugement : 5,7 ans** : la moitié des sociétés défaillantes avaient moins de six ans.
 - **Trois secteurs font plus de la moitié des défaillances** : le commerce (22,2 %), la construction (21,2 %) et l'hébergement-restauration (13,7 %).
 - **Départements** : Paris (21 375), la Seine-Saint-Denis (12 795) et les Bouches-du-Rhône (12 106) comptent le plus d'ouvertures. Ces nombres bruts suivent aussi le nombre de sociétés installées : la part de liquidations et l'âge médian, sur la carte, se comparent mieux d'un département à l'autre.
 
 ### 3. Quels signaux financiers annonçaient la défaillance ?
+
+*À voir dans le dashboard : page Finances, graphique « Répartition du chiffre d'affaires » et tableau « Statistiques par groupe », filtrables par secteur.*
 
 Sur la table `scoring`, on mesure pour chaque variable sa capacité à séparer défaillantes et saines (AUC univariée : 0,5 = aucun pouvoir, 1 = séparation parfaite).
 
@@ -98,6 +104,8 @@ Sur la table `scoring`, on mesure pour chaque variable sa capacité à séparer 
 **Le chiffre d'affaires**, en revanche, sépare mal les deux groupes : la médiane est de **307 221 €** chez les défaillantes et de **330 000 €** chez les saines. L'écart se joue aux extrêmes : **8,4 % des saines dépassent 10 M€ de chiffre d'affaires, contre 3,9 % des défaillantes**. La taille protège un peu, mais ce sont la rentabilité et la trésorerie qui annoncent la défaillance.
 
 ### 4. Le modèle de scoring
+
+*À voir dans le dashboard : page Scoring, graphiques « Taux de défaut observé par note » et « Ce qui pèse dans le score », puis la « Grille de notation ».*
 
 Une **régression logistique** estime la probabilité de défaut à partir des derniers comptes (liquidité, autonomie financière, fonds propres négatifs, endettement, marge d'EBE, résultat négatif, capacité de remboursement), de l'âge et du secteur. Le modèle apprend sur **2019-2023** (53 975 sociétés) et il est jugé sur **2024-2025** (35 534 sociétés), des années qu'il n'a jamais vues.
 
@@ -117,6 +125,8 @@ Les probabilités sont **recalées** sur un taux de défaut annuel de référenc
 **Le taux de défaut monte à chaque note** : la notation classe bien le risque sur des années qu'elle n'a pas vues.
 
 ### 5. Limites
+
+*Le détail des sources, des définitions et des choix de nettoyage : page Méthodologie.*
 
 - **Biais de sélection** : seules 14,7 % des sociétés défaillantes ont des comptes clos dans les deux ans avant le jugement. L'analyse financière porte sur les sociétés qui publient leurs comptes.
 - **Biais du survivant** : les sociétés saines sont des sociétés encore actives aujourd'hui ; elles ont forcément survécu, ce qui rend la comparaison un peu optimiste.
