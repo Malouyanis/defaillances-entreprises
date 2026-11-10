@@ -18,7 +18,50 @@ Projet data du cours Python 2 — E4 DSIA, ESIEE Paris.
 
 ## User Guide
 
-*User Guide : à compléter.*
+**Vidéo de démonstration** : lien à venir.
+
+### Installation
+
+Il faut Python 3.13 ou plus récent et Git. La base de données déjà construite (`data/db.sqlite`) est fournie dans le dépôt : aucun téléchargement n'est nécessaire pour lancer le dashboard.
+
+```bash
+git clone https://github.com/Malouyanis/defaillances-entreprises.git
+cd defaillances-entreprises
+python -m pip install -r requirements.txt
+python main.py
+```
+
+Avec [uv](https://docs.astral.sh/uv/), les deux lignes du milieu deviennent `uv sync` puis `uv run python main.py`.
+
+Ouvrez ensuite <http://127.0.0.1:8050> dans un navigateur. Pour arrêter le dashboard : `Ctrl + C` dans le terminal.
+
+### Les pages
+
+| Page | Ce qu'elle montre |
+|---|---|
+| Accueil | Les chiffres clés, les ouvertures de procédure par année et les départements les plus touchés |
+| Carte | Les défaillances par département : nombre, part de liquidations ou âge médian, avec le classement « En tête » |
+| Évolution | Les ouvertures mois par mois pour chaque procédure, et le tableau année par année |
+| Finances | Le chiffre d'affaires des sociétés défaillantes comparé à celui des sociétés saines, par secteur |
+| Scoring | Le modèle de risque : AUC, taux de défaut par note de A à E, variables qui pèsent dans le score |
+| Méthodologie | Les sources, les définitions, les choix de nettoyage et les limites |
+
+Les pages Carte et Évolution ont une barre de filtres commune : période, procédure et région. La page Finances se filtre par secteur. Le bouton « Mettre à jour les données », en bas du menu, relit la base après un nouveau `clean_data.py`.
+
+![Page d'accueil](images/accueil.png)
+
+![Carte des défaillances](images/carte.png)
+
+![Scoring](images/scoring.png)
+
+### Reconstruire les données (facultatif)
+
+```bash
+python get_data.py
+python clean_data.py
+```
+
+`get_data.py` télécharge les trois sources (environ 1,5 Go, plusieurs minutes) dans `data/raw/` et écrit la table `raw` ; `clean_data.py` construit les tables `cleaned` et `scoring`. `python get_data.py 2024 2025` limite le téléchargement à une période plus courte.
 
 ## Data
 
@@ -59,7 +102,83 @@ La base finale `data/db.sqlite` contient les trois tables `raw`, `cleaned` et `s
 
 ## Developer Guide
 
-*Developer Guide : à compléter.*
+### Architecture
+
+Le code est écrit en fonctions (programmation impérative) et rangé en trois paquets : `src/utils` (données et calculs), `src/components` (morceaux d'interface communs) et `src/pages` (une page Dash par fichier).
+
+```mermaid
+flowchart LR
+    subgraph Sources
+        B[BODACC - DILA]
+        R[Ratios BCE/INPI - DGE]
+        S[Sirene - INSEE]
+    end
+    B --> GD[get_data.py]
+    R --> GD
+    S --> GD
+    GD --> RAW[(table raw)]
+    GD --> FICHIERS[data/raw/]
+    RAW --> CD[clean_data.py]
+    FICHIERS --> CD
+    CD --> CL[(table cleaned)]
+    CD --> SC[(table scoring)]
+    CL --> APP[main.py puis src/app.py]
+    SC --> APP
+    APP --> PAGES[src/pages]
+    PAGES --> NAV[Navigateur : 127.0.0.1:8050]
+```
+
+```mermaid
+flowchart TD
+    MAIN[main.py] --> APP[src/app.py : Dash multipage]
+    APP --> COMP[src/components : navbar, filtres, chiffres, graphique, footer]
+    APP --> PAGES[src/pages : accueil, carte, evolution, finances, scoring, methodologie]
+    PAGES --> COMP
+    PAGES --> UTILS[src/utils]
+    UTILS --> CACHE[cache.py : tables gardées en mémoire]
+    UTILS --> CALCULS[filtrage, finances, scoring, notation, geographie]
+    UTILS --> STYLE[figures.py et formatage.py : style des graphiques et nombres à la française]
+    CACHE --> DB[(data/db.sqlite)]
+```
+
+| Dossier ou fichier | Rôle |
+|---|---|
+| `main.py` | Point d'entrée : crée l'application et lance le serveur local |
+| `get_data.py`, `clean_data.py` | Téléchargement des sources, puis construction des tables `cleaned` et `scoring` |
+| `config.py` | Chemins, adresses des sources, période étudiée, hôte et port |
+| `src/app.py` | Application Dash multipage : barre latérale, contenu de la page, pied de page |
+| `src/pages/` | Une page par fichier, enregistrée avec `dash.register_page` |
+| `src/components/` | Barre latérale, barre de filtres, carte des chiffres clés, graphique accessible, pied de page |
+| `src/utils/` | Lecture de la base, nettoyage, jointure, calculs des pages, modèle de scoring, style des graphiques |
+| `src/assets/` | Thème CSS et police Geist, servis automatiquement par Dash (aucune ressource en ligne) |
+| `tests/` | Un fichier de test par module (`pytest`) |
+| `DESIGN.md` | Règles visuelles du dashboard : couleurs, typographie, graphiques |
+
+### Ajouter une page
+
+1. Créer `src/pages/ma_page.py` et l'enregistrer : `dash.register_page(__name__, path="/ma-page", name="Ma page", order=50)`. Le numéro `order` place le lien dans le menu (Accueil 0, Carte 10, Évolution 20, Finances 30, Scoring 40, Méthodologie 90).
+2. Définir une fonction `layout()` qui renvoie le contenu : elle est appelée à chaque visite, ce qui permet de lire la base à ce moment-là (avec `cache.charger_table`).
+3. Pour réagir aux filtres, réutiliser `creer_barre_filtres()` de `src/components/filtres.py` et écrire un `@callback` qui prend les trois filtres en `Input`.
+4. Ajouter `tests/test_ma_page.py` : récupérer le module de la page avec `sys.modules[page["module"]]` après `creer_application()`.
+
+La page apparaît seule dans le menu : la barre latérale est construite à partir de `dash.page_registry`.
+
+### Ajouter un graphique
+
+1. Construire la figure Plotly, puis la passer à `appliquer_style(figure)` (`src/utils/figures.py`) : même police, mêmes couleurs, mêmes marges, nombres à la française.
+2. Utiliser les couleurs du projet : `TEINTE` pour la donnée principale, `NEUTRE` pour la comparaison, `COULEURS_PROCEDURES` pour les trois procédures.
+3. L'afficher avec `creer_graphique(description, figure=...)` (`src/components/graphique.py`) : la description donne les mêmes informations en texte pour les lecteurs d'écran.
+4. Mettre les nombres affichés en forme avec `src/utils/formatage.py` (`entier`, `decimal`, `pourcentage`).
+
+### Vérifier le code
+
+```bash
+uv sync --all-groups
+uv run pytest
+uv run ruff check .
+uv run mypy .
+uv run pylint src/utils
+```
 
 ## Rapport d'analyse
 
