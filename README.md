@@ -1,12 +1,12 @@
 # Défaillances d'entreprises en France
 
-Dashboard interactif sur les défaillances de sociétés en France métropolitaine (2019-2025), à partir des données ouvertes du BODACC, des ratios financiers BCE/INPI et de Sirene.
+Dashboard sur les défaillances de sociétés en France métropolitaine entre 2019 et 2025, construit grâce aux données ouvertes du BODACC, de Sirene et des ratios financiers BCE/INPI.
 
 Projet data du cours Python 2 — E4 DSIA, ESIEE Paris.
 
 **Auteurs** : Yanis Malou, Maxime Pierrard
 
-**Question étudiée** : quels profils d'entreprises présentent le plus de risque de crédit ?
+**Problématique** : quels profils d'entreprises françaises présentent le plus de risque de crédit ?
 
 ## Sommaire
 
