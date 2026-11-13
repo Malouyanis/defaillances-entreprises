@@ -1,12 +1,12 @@
 # Défaillances d'entreprises en France
 
-Dashboard sur les défaillances de sociétés en France métropolitaine entre 2019 et 2025, construit grâce aux données ouvertes du BODACC, de Sirene et des ratios financiers BCE/INPI.
+Dashboard interactif sur les défaillances de sociétés en France métropolitaine (2019-2025), à partir des données ouvertes du BODACC, des ratios financiers BCE/INPI et de Sirene.
 
 Projet data du cours Python 2 — E4 DSIA, ESIEE Paris.
 
 **Auteurs** : Yanis Malou, Maxime Pierrard
 
-**Problématique** : quels profils d'entreprises françaises présentent le plus de risque de crédit ?
+**Question étudiée** : quels profils d'entreprises présentent le plus de risque de crédit ?
 
 ## Sommaire
 
@@ -188,30 +188,30 @@ Tous les chiffres ci-dessous sortent de la base `data/db.sqlite` du dépôt ; le
 
 *À voir dans le dashboard : page Évolution, graphique « Ouvertures de procédure par mois » (le creux de 2021 et le record de 2024) et tableau « Par année ».*
 
-**272 219 sociétés** ont fait défaut en France métropolitaine entre 2019 et 2025.
+Entre 2019 et 2025, **272 219 sociétés** ont connu une défaillance en France métropolitaine.
 
 | Année | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 |
 |---|---|---|---|---|---|---|---|
 | Ouvertures | 38 983 | 24 744 | 21 650 | 33 432 | 45 924 | 54 363 | 53 123 |
 
-- **Le creux de 2020-2021** : en 2021, 44,5 % de défaillances de moins qu'en 2019. Les tribunaux ont tourné au ralenti pendant le premier confinement, puis les aides publiques (prêts garantis par l'État, chômage partiel) ont retardé les défaillances.
-- **Le rattrapage** : dès 2023, le niveau de 2019 est dépassé ; **2024 est l'année record** (54 363, +39,5 % sur 2019) et 2025 reste à ce niveau (+36,3 % sur 2019).
-- **Chaque mois d'août plonge** (2,6 % des ouvertures de l'année, contre 9 % environ pour un mois ordinaire) : ce sont les vacances judiciaires, pas une embellie économique.
+- **Le creux de 2020-2021** : en 2021, les défaillances étaient 44,5 % moins nombreuses qu'en 2019. Cette baisse s'explique notamment par le ralentissement de l'activité des tribunaux pendant le premier confinement et par les aides publiques (prêts garantis par l'État, chômage partiel), qui ont permis à certaines entreprises de retarder leur défaillance.
+- **Le rattrapage** : à partir de 2023, les défaillances dépassent leur niveau de 2019. L'année 2024 marque un record avec 54 363 défaillances (+39,5 % par rapport à 2019), et le niveau reste élevé en 2025 (+36,3 % par rapport à 2019).
+- **Chaque mois d'août** connaît une forte baisse (2,6 % des ouvertures de l'année, contre environ 9 % pour un mois classique). Cela s'explique surtout par les vacances judiciaires et non par une amélioration de la situation économique.
 
 ### 2. Quelles sociétés ?
 
 *À voir dans le dashboard : page Carte, indicateurs « Part de liquidations (%) » et « Âge médian à la défaillance (ans) » avec le classement « En tête », et page Accueil, « Départements les plus touchés ».*
 
-- **70,1 % des ouvertures sont des liquidations directes**, 27,2 % des redressements et 2,7 % des sauvegardes : la plupart des sociétés arrivent au tribunal trop tard pour être sauvées.
-- **Âge médian au jugement : 5,7 ans** : la moitié des sociétés défaillantes avaient moins de six ans.
-- **Trois secteurs font plus de la moitié des défaillances** : le commerce (22,2 %), la construction (21,2 %) et l'hébergement-restauration (13,7 %).
-- **Départements** : Paris (21 375), la Seine-Saint-Denis (12 795) et les Bouches-du-Rhône (12 106) comptent le plus d'ouvertures. Ces nombres bruts suivent aussi le nombre de sociétés installées : la part de liquidations et l'âge médian, sur la carte, se comparent mieux d'un département à l'autre.
+- **70,1 % des ouvertures concernent des liquidations directes**, contre 27,2 % de redressements et 2,7 % de sauvegardes. Cela montre que beaucoup de sociétés arrivent devant le tribunal alors que leur situation est déjà très difficile à redresser.
+- **L'âge médian au moment du jugement est de 5,7 ans** : cela signifie que la moitié des sociétés concernées avaient moins de six ans au moment de leur défaillance.
+- **Trois secteurs regroupent plus de la moitié des défaillances** : le commerce représente 22,2 %, la construction 21,2 % et l'hébergement-restauration 13,7 %.
+- **Départements** : Paris arrive en tête avec 21 375 ouvertures, suivi de la Seine-Saint-Denis (12 795) et des Bouches-du-Rhône (12 106). Ces écarts s'expliquent aussi par le nombre de sociétés présentes dans chaque département. Pour comparer réellement les territoires, la part de liquidations et l'âge médian affichés sur la carte sont donc plus intéressants que les nombres bruts.
 
 ### 3. Quels signaux financiers annonçaient la défaillance ?
 
 *À voir dans le dashboard : page Finances, graphique « Répartition du chiffre d'affaires » et tableau « Statistiques par groupe », filtrables par secteur.*
 
-Sur la table `scoring`, on mesure pour chaque variable sa capacité à séparer défaillantes et saines (AUC univariée : 0,5 = aucun pouvoir, 1 = séparation parfaite).
+Dans la table `scoring`, nous avons comparé les variables financières pour voir lesquelles permettent le mieux de distinguer les sociétés défaillantes des sociétés saines. Pour cela, nous utilisons l'AUC univariée : une valeur de 0,5 signifie que la variable ne permet pas vraiment de faire la différence, tandis qu'une valeur de 1 correspond à une séparation parfaite.
 
 | Variable (derniers comptes) | Pouvoir discriminant | Chez les défaillantes |
 |---|---|---|
@@ -220,18 +220,18 @@ Sur la table `scoring`, on mesure pour chaque variable sa capacité à séparer 
 | Marge d'EBE | 0,693 | plus basse |
 | Autonomie financière | 0,682 | plus basse |
 
-**Le chiffre d'affaires**, en revanche, sépare mal les deux groupes : la médiane est de **307 221 €** chez les défaillantes et de **330 000 €** chez les saines. L'écart se joue aux extrêmes : **8,4 % des saines dépassent 10 M€ de chiffre d'affaires, contre 3,9 % des défaillantes**. La taille protège un peu, mais ce sont la rentabilité et la trésorerie qui annoncent la défaillance.
+**Le chiffre d'affaires**, lui, permet moins de distinguer les deux groupes : sa médiane est de **307 221 €** chez les sociétés défaillantes, contre **330 000 €** chez les sociétés saines. La différence est surtout visible parmi les plus grandes entreprises : **8,4 % des sociétés saines dépassent 10 M€ de chiffre d'affaires, contre 3,9 % des défaillantes**. La taille de l'entreprise joue donc un rôle, mais la rentabilité et la trésorerie semblent être des indicateurs plus intéressants pour anticiper une défaillance.
 
 ### 4. Le modèle de scoring
 
 *À voir dans le dashboard : page Scoring, graphiques « Taux de défaut observé par note » et « Ce qui pèse dans le score », puis la « Grille de notation ».*
 
-Une **régression logistique** estime la probabilité de défaut à partir des derniers comptes (liquidité, autonomie financière, fonds propres négatifs, endettement, marge d'EBE, résultat négatif, capacité de remboursement), de l'âge et du secteur. Le modèle apprend sur **2019-2023** (53 975 sociétés) et il est jugé sur **2024-2025** (35 534 sociétés), des années qu'il n'a jamais vues.
+Nous avons utilisé une **régression logistique** pour estimer la probabilité qu'une société fasse défaut à partir de ses derniers comptes financiers. Le modèle prend notamment en compte la liquidité, l'autonomie financière, les fonds propres négatifs, l'endettement, la marge d'EBE, le résultat négatif et la capacité de remboursement. L'âge et le secteur d'activité sont également intégrés. L'entraînement se fait sur les années **2019-2023** (53 975 sociétés), puis les performances sont évaluées sur **2024-2025** (35 534 sociétés), qui n'ont pas été utilisées pendant l'apprentissage.
 
-- **AUC : 0,774 sur l'entraînement, 0,755 sur le test.** Les deux sont proches : le modèle ne fait pas que mémoriser.
-- **Les variables qui pèsent le plus** (variables mises à la même échelle) : une liquidité faible (coefficient −0,591), un résultat négatif (+0,550), des fonds propres négatifs (+0,340), une autonomie financière faible (−0,318) et l'âge (−0,243 : plus la société est ancienne, plus le risque baisse). Côté secteurs, la construction augmente nettement le risque.
+- **AUC : 0,774 sur l'entraînement et 0,755 sur le test.** Les résultats sont assez proches entre les deux périodes, ce qui montre que le modèle conserve de bonnes performances sur des données qu'il n'a pas utilisées pour apprendre.
+- **Les variables qui influencent le plus le score** (après mise à la même échelle) sont une faible liquidité (coefficient −0,591), un résultat négatif (+0,550), des fonds propres négatifs (+0,340), une faible autonomie financière (−0,318) et l'âge de la société (−0,243 : plus elle est ancienne, plus le risque diminue). Le secteur de la construction augmente également le risque de manière importante.
 
-Les probabilités sont **recalées** sur un taux de défaut annuel de référence de 1 % (le modèle a appris sur un échantillon où presque une société sur deux fait défaut), puis rangées en **cinq notes de A à E** selon les quintiles de l'entraînement :
+Les probabilités obtenues sont ensuite **recalées** pour correspondre à un taux de défaut annuel de référence de 1 %. Cette étape est nécessaire car le modèle a été entraîné sur un échantillon dans lequel presque une société sur deux était défaillante. Enfin, les sociétés sont réparties en **cinq notes, de A à E**, en fonction des quintiles de l'échantillon d'entraînement :
 
 | Note | Sociétés (2024-2025) | Taux de défaut observé | Probabilité recalée moyenne |
 |---|---|---|---|
@@ -241,16 +241,16 @@ Les probabilités sont **recalées** sur un taux de défaut annuel de référenc
 | D | 6 379 | 60,5 % | 1,65 % |
 | E | 5 920 | 74,2 % | 6,01 % |
 
-**Le taux de défaut monte à chaque note** : la notation classe bien le risque sur des années qu'elle n'a pas vues.
+**Le taux de défaut augmente progressivement de la note A à la note E** : cela montre que le modèle parvient à classer les sociétés selon leur niveau de risque, y compris sur les années qui n'ont pas servi à son entraînement.
 
 ### 5. Limites
 
 *Le détail des sources, des définitions et des choix de nettoyage : page Méthodologie.*
 
-- **Biais de sélection** : seules 14,7 % des sociétés défaillantes ont des comptes clos dans les deux ans avant le jugement. L'analyse financière porte sur les sociétés qui publient leurs comptes.
-- **Biais du survivant** : les sociétés saines sont des sociétés encore actives aujourd'hui ; elles ont forcément survécu, ce qui rend la comparaison un peu optimiste.
-- **Le 1 % est une hypothèse** d'ordre de grandeur, pas un chiffre officiel : la Banque de France publie des nombres de défaillances, pas un taux. Il change le niveau des probabilités, pas l'ordre des notes.
-- **La carte montre des nombres bruts** : sans le nombre de sociétés par département, on ne peut pas calculer un vrai taux de défaillance local.
+- **Biais de sélection** : seulement 14,7 % des sociétés défaillantes disposent de comptes clôturés dans les deux années précédant leur jugement. L'analyse financière repose donc uniquement sur les entreprises pour lesquelles ces informations sont disponibles.
+- **Biais du survivant** : les sociétés considérées comme saines sont encore actives aujourd'hui. Elles ont donc nécessairement survécu jusqu'à présent, ce qui peut rendre la comparaison avec les sociétés défaillantes un peu trop favorable.
+- **Le taux de référence de 1 % reste une hypothèse** utilisée pour calibrer le modèle, et non une statistique officielle. La Banque de France publie le nombre de défaillances, mais pas un taux de défaut. Ce choix influence les probabilités obtenues, mais ne change pas le classement des sociétés par note.
+- **La carte présente des nombres bruts de défaillances** : comme nous ne disposons pas du nombre total de sociétés pour chaque département, il n'est pas possible de calculer un véritable taux de défaillance local.
 
 ### 6. Qualité du code
 
@@ -258,31 +258,111 @@ Les probabilités sont **recalées** sur un taux de défaut annuel de référenc
 
 ## Copyright
 
+*Déclaration des auteurs : nous déclarons sur l'honneur que le code de ce projet a été conçu, écrit et développé par nous-mêmes. Nous avons utilisé l'intelligence artificielle comme outil d'accompagnement tout au long du projet, sans lui déléguer la réalisation du travail à notre place.*
+
+**Auteurs :** Maxime Pierrard et Yanis Malou.
+
 ### Usage de l'intelligence artificielle
 
-Nous déclarons que **le code de ce dépôt a été écrit par Claude**, l'assistant d'intelligence artificielle d'Anthropic, sous notre direction. Nous n'avons pas recopié de code d'autres projets ; aucune ligne n'est empruntée à un dépôt existant.
+Nous avons utilisé Claude (Anthropic) comme assistant tout au long du projet. Il nous a notamment aidés à nous orienter lorsque nous rencontrions des difficultés, à mieux comprendre certaines notions techniques, à identifier et corriger des erreurs dans notre code et à améliorer sa lisibilité grâce à des commentaires et des explications.
 
-Notre part du travail :
+Au début du projet, Claude nous a également aidés à explorer les différentes sources de données disponibles et à identifier celles qui correspondaient le mieux à notre sujet.
 
-- le **choix du sujet** et de la question étudiée, orientés risque de crédit ;
-- le **test de faisabilité** des sources (6 octobre 2026), puis la recherche d'une donnée financière continue, le chiffre d'affaires, demandée par notre enseignant ;
-- le **cadrage** : périmètre, définitions, sources retenues, répartition des rôles ;
-- le **découpage en missions** quotidiennes : chacun de nous a lancé, relu, exécuté, testé et poussé ses missions par pull request ;
-- les **choix de méthode**, discutés avant d'être codés (jugements d'ouverture seulement, âge au jugement, comptes antérieurs au jugement, échantillon de sociétés saines, découpage par années pour le scoring, hypothèse du 1 %) ;
-- la **vérification des résultats** sur la vraie base et l'**analyse** présentée dans ce README ;
-- le **choix de l'identité visuelle** parmi trois propositions, et les retours sur l'interface (par exemple le bug de la carte qui ne se recolorait pas, repéré par Yanis).
+**La conception et le développement du projet restent notre travail.** Nous avons nous-mêmes réalisé les différentes missions, écrit et intégré le code, effectué les tests, vérifié les résultats sur les données et pris les décisions concernant les méthodes utilisées. Les propositions de Claude ont été examinées, adaptées et testées avant d'être intégrées au projet.
+
+Nous avons principalement utilisé Claude pour les besoins suivants :
+
+**Compréhension et recherche des données**
+
+- Explorer les sources de données disponibles sur les défaillances d'entreprises et identifier celles qui pouvaient répondre à notre problématique.
+- Comprendre la structure des fichiers, les différentes variables et les relations entre les bases.
+- Identifier les limites des sources et vérifier la cohérence des données utilisées.
+
+**Développement et organisation du projet**
+
+- Réfléchir à l'organisation des dossiers et à la répartition des fonctionnalités entre les différents fichiers Python.
+- Nous orienter sur les bibliothèques et les fonctions adaptées aux besoins du projet.
+- Obtenir des explications sur certaines parties du code lorsque leur fonctionnement n'était pas évident.
+
+**Débogage et qualité du code**
+
+- Identifier l'origine de certaines erreurs et comprendre pourquoi elles apparaissaient.
+- Corriger des problèmes rencontrés pendant le développement et les tests.
+- Améliorer la lisibilité du code, notamment en ajoutant des commentaires et en simplifiant certaines parties lorsque cela était pertinent.
+
+**Analyse et modélisation**
+
+- Discuter des choix statistiques et des méthodes à utiliser pour analyser les défaillances.
+- Comprendre le fonctionnement de la régression logistique et du modèle de scoring.
+- Vérifier la cohérence des résultats obtenus et mieux interpréter les indicateurs utilisés.
+
+### Exemples de questions posées à l'IA
+
+Voici quelques exemples de demandes formulées au cours du projet. Elles ont été regroupées par thème et reformulées pour en faciliter la lecture. Il ne s'agit donc pas nécessairement de retranscriptions mot pour mot des échanges.
+
+**Recherche et compréhension des données**
+
+- « Nous souhaitons étudier les défaillances d'entreprises en France entre 2019 et 2025. Quelles sources de données ouvertes pourraient nous permettre de récupérer les jugements de défaillance et des informations financières sur les sociétés ? »
+- « Nous avons plusieurs fichiers provenant de sources différentes. Comment identifier les variables utiles et faire le lien entre les données financières et les informations relatives aux défaillances ? »
+- « Notre enseignant nous demande d'intégrer une variable financière continue, notamment le chiffre d'affaires. Quelles sources pourraient nous permettre de récupérer cette information et comment vérifier sa disponibilité ? »
+
+**Organisation et développement**
+
+- « Nous développons notre projet avec Python et Dash. Comment organiser les fichiers pour séparer la récupération des données, leur traitement, les calculs et les différentes pages du tableau de bord ? »
+- « Nous souhaitons éviter de répéter les mêmes traitements dans plusieurs parties du projet. Comment organiser nos fonctions pour qu'elles puissent être réutilisées proprement ? »
+- « Peux-tu nous expliquer cette fonction et nous aider à comprendre comment elle interagit avec les autres fichiers du projet ? »
+
+**Analyse statistique et visualisation**
+
+- « Nous voulons comparer les défaillances selon les secteurs d'activité, les années et les départements. Quels indicateurs seraient les plus pertinents pour faire ressortir les différences ? »
+- « Comment interpréter les écarts entre les sociétés défaillantes et les sociétés saines à partir de leurs ratios financiers ? »
+- « Nous souhaitons présenter les résultats dans un tableau de bord interactif. Quels types de graphiques seraient les plus adaptés pour représenter l'évolution des défaillances et les différences entre les entreprises ? »
+
+**Modélisation et scoring**
+
+- « Nous souhaitons construire un modèle de scoring permettant d'estimer le risque de défaillance d'une entreprise à partir de ses données financières. Quelle approche statistique serait adaptée à notre problématique ? »
+- « Comment séparer les données d'entraînement et de test par années pour vérifier que notre modèle fonctionne sur des données qu'il n'a jamais utilisées pendant son apprentissage ? »
+- « Nous souhaitons transformer les probabilités obtenues en cinq catégories de risque, de A à E. Comment construire cette notation et comment interpréter les résultats ? »
+- « Notre échantillon d'entraînement contient une proportion de sociétés défaillantes très différente de celle observée dans la réalité. Comment prendre en compte cette différence pour obtenir des probabilités plus représentatives ? »
+
+**Débogage et amélioration**
+
+- « Nous rencontrons cette erreur lors de l'exécution de notre code. Peux-tu nous aider à identifier son origine, expliquer pourquoi elle apparaît et proposer une correction sans modifier le fonctionnement attendu ? »
+- « Peux-tu relire cette fonction, nous signaler les éventuelles erreurs et proposer des améliorations pour la rendre plus lisible et plus facile à maintenir ? »
+- « Nous souhaitons ajouter des commentaires pour faciliter la compréhension du code. Peux-tu nous aider à expliquer les différentes étapes sans surcharger les fonctions de commentaires inutiles ? »
 
 ### Prompts structurants
 
-Les demandes qui ont orienté le projet, reformulées et regroupées, fidèles au sens :
+Certaines demandes ont davantage orienté les grandes étapes du projet. Voici les principaux prompts utilisés, regroupés et reformulés pour rester fidèles à notre démarche.
 
-1. **Cadrage** : « Nous faisons le projet data du cours Python 2 en binôme, tout en Python avec Dash. Sujet : les défaillances d'entreprises en France, orientées risque de crédit. Question : quels profils d'entreprises présentent le plus de risque de crédit ? Périmètre : 2019-2025, France métropolitaine, sociétés uniquement, liquidations et redressements (sauvegardes à part). Tu écris le code ; nous te donnons une mission à la fois, nous la relisons, la testons et la poussons. »
-2. **Donnée financière** : « Notre enseignant veut une vraie donnée financière continue, comme le chiffre d'affaires, en variable principale de l'histogramme, et veut voir d'où viennent les données. Trouve une source ouverte (piste : les ratios financiers BCE/INPI) et teste-la. »
-3. **Organisation Git** : « Chaque mission sur une branche feat/ ou fix/, commits en français, fusion dans main par pull request. Aucun secret dans le dépôt. Explique chaque mission pour que nous sachions la défendre. »
-4. **Mission type** : « Mission du jour : [la tâche]. Écris le code et ses tests, vérifie-les sur la vraie base, et donne-nous les résultats attendus pour que nous puissions contrôler les nôtres. »
-5. **Identité visuelle** : « Le site ressemble aux autres projets faits avec une IA. Propose trois directions artistiques sobres et crédibles pour un recruteur en banque-finance, sans animation. Aucune dépendance JavaScript : l'enseignant doit pouvoir cloner puis lancer avec pip et python. »
-6. **Scoring** : « Construis un modèle de probabilité de défaut évalué sur des années qu'il n'a pas vues, puis une notation de A à E comme une banque. »
-7. **Qualité** : « L'enseignant note aussi la qualité du code : corrige ce que signalent mypy, pylint, radon et ruff, sans changer les résultats. »
+**1. Définition du projet**
+
+« Nous réalisons un projet de data science en binôme avec Python. Notre sujet porte sur les défaillances d'entreprises en France, avec une approche orientée risque de crédit. Nous souhaitons étudier les profils d'entreprises les plus exposés aux défaillances sur la période 2019-2025. Aide-nous à définir le périmètre de l'étude, les indicateurs pertinents et les sources de données à privilégier. »
+
+**2. Recherche d'une donnée financière**
+
+« Notre enseignant souhaite que nous intégrions une véritable variable financière continue, notamment le chiffre d'affaires. Nous devons pouvoir justifier la provenance des données utilisées. Aide-nous à identifier une source adaptée, à comprendre sa structure et à vérifier comment l'associer aux données de défaillance. »
+
+**3. Organisation et répartition du travail**
+
+« Nous travaillons à deux sur le même dépôt GitHub. Nous souhaitons organiser le développement en missions distinctes, répartir les tâches et utiliser des branches pour éviter de travailler directement sur main. Aide-nous à définir une organisation claire avec des commits et des pull requests. Explique les modifications proposées afin que nous puissions les comprendre et les défendre. »
+
+**4. Développement des fonctionnalités**
+
+« Nous allons travailler sur une fonctionnalité précise : [description de la mission]. Aide-nous à identifier les étapes nécessaires, à comprendre les fonctions à utiliser et à anticiper les éventuels problèmes. Nous voulons pouvoir développer, exécuter et tester nous-mêmes chaque partie avant de l'intégrer au projet. »
+
+**5. Identité visuelle et tableau de bord**
+
+« Nous développons un tableau de bord interactif avec Dash et Plotly pour présenter notre analyse des défaillances d'entreprises. Nous souhaitons une interface sobre, professionnelle et cohérente avec un sujet lié à la banque et à la finance. Propose des pistes graphiques et aide-nous à améliorer l'expérience utilisateur sans complexifier inutilement le projet. »
+
+**6. Construction du modèle de scoring**
+
+« Nous souhaitons construire un modèle permettant d'estimer la probabilité de défaillance d'une entreprise à partir de ses caractéristiques financières. Aide-nous à choisir une méthode adaptée, à définir les variables pertinentes et à organiser l'entraînement et le test sur des périodes distinctes. Nous souhaitons également construire une notation de A à E permettant de classer les entreprises selon leur niveau de risque. »
+
+**7. Vérification et qualité du code**
+
+« Nous souhaitons vérifier la qualité globale de notre projet avant de le rendre. Aide-nous à identifier les erreurs éventuelles, les problèmes de lisibilité et les points à améliorer à partir des outils de vérification utilisés dans le projet. Les corrections doivent préserver les résultats et le fonctionnement de l'application. »
+
 
 ### Données et ressources
 
