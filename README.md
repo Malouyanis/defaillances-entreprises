@@ -18,7 +18,7 @@ Projet data du cours Python 2 — E4 DSIA, ESIEE Paris.
 
 ## User Guide
 
-**Vidéo de démonstration** : [regarder la vidéo (2 min 58)](https://drive.google.com/file/d/1n6Xb5Yx17MKclBJKc5vNiwDDgNeBLg5D/view?usp=sharing)
+**Vidéo de démonstration** : [regarder la vidéo (3 min 10)](https://vimeo.com/1246846213)
 
 ### Installation
 
